@@ -1,11 +1,16 @@
 'use strict'
 
 //import http from 'node:http';
-var http = require('http');
-var got = require('got');
-//const { got } = require('got');
+//var http = require('http');
+//var got = require('got');
+///** @type {import('got')} */
+//const got = use('got')
+//const { got } = require('got/dist/source/index.js');
+//./dist/source/index.js
 //import got from 'got';
 //import got from '@adonisjs/got'
+//const got = require("got");
+//const got = require('global-modules/got');
 
 class ClientController {
     async store() {
@@ -178,14 +183,70 @@ app.get('/users', async(req, res) => {
 })
 */
 
+/*
+var got = require('got');
+var options = {
+    'method': 'GET',
+    'url': 'https://increase-transactions.herokuapp.com/file.txt',
+    'headers': {
+        'Authorization': 'Bearer 1234567890qwertyuiopasdfghjklzxcvbnm',
+        'Content-Type': 'application/json'
+    }
+};
 
-
-const {timings} = await got('https://example.com', {
-	timeout: {
-		request: 10000
-	}
-});
+const {timings} = await got('https://increase-transactions.herokuapp.com/file.txt', options );
  console.log(timings);
+*/
+
+
+var request = require('request');
+
+var options = {
+  'method': 'GET',
+  'url': 'https://increase-transactions.herokuapp.com/file.txt',
+  'headers': {
+    'Authorization': 'Bearer 1234567890qwertyuiopasdfghjklzxcvbnm',
+    'Content-Type': 'application/json'
+  }
+};
+
+/*
+let req = await request(options, function (error, response) { 
+  if (error) throw new Error(error);
+  //console.log(response.body);
+  //res = response.body;
+  //req = response.body;
+  //return req;
+}).response;
+
+console.log(req.RequestCallback());
+*/
+
+  const result = new Promise((resolve, reject) => {
+    request(options, function(error, response) {
+      if (error) return reject(error);
+      //console.log(JSON.parse(response));
+      //return resolve(JSON.parse(response.body));
+      return resolve(response.body);
+    });
+  })
+
+  // make sure, to use async in your function
+  // because we're using await here
+  var fromapi = await result;
+  // It's working here
+  console.log('%c Oh my heavens! ', 'background: #222; color: #bada55', 'more text');
+  console.log("PRUEBA\n")
+  //console.log(fromapi);
+  // socket hang up
+
+  var fs = require('fs');
+    fs.writeFile('helloworld.txt', fromapi, function (err) {
+    if (err) return console.log(err);
+    console.log('Hello World > helloworld.txt');
+    });
+
+return fromapi;
 
 
 
