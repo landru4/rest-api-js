@@ -12,9 +12,21 @@ Tipo IdTrans Monto       Tipo (1: aprobado, 2: rechazado)
 Descuento:
 Tipo IdDes  Monto       Tipo (1:IVA,2:Retenciones,3:Comisiones,4:Costos extra,5: Ingresos brutos)
 ^(3)(\w{32})(\d{13})\s{3}(\d{1})\n
+^(3)(\w{16})*(\d{13})\s{3}(\d{1})\n
 
 Footer:
 Tipo IdDes FechaPago IdCliente
-^(4)\s{15}(\d{8})(\d{32})[\s]*$
+^(4)\s{15}(\d{8})(\w{32})\n
+
+
+
+Todo:
+^((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n^((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n(((2)(\w{32})(\d{13})\s{5}(\d{1}))\n)*
+(((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*
+(((4)\s{15}(\d{8})(\w{32}))\n)
+
+En sublime
+^((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n(((2)(\w{32})(\d{13})\s{5}(\d{1}))\n)*(((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*(((4)\s{15}(\d{8})(\w{32}))\n)
+
 
 
