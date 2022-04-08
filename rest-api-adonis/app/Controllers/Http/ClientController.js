@@ -113,7 +113,8 @@ class ClientController {
         const result = new Promise((resolve, reject) => {
             request(options, function(error, response) {
             if (error) return reject(error);
-            //console.log(JSON.parse(response));
+            //console.log(JSON.parse(response.body));
+            console.log(response.body);
             //return resolve(JSON.parse(response.body));
             return resolve(response.body);
             });
@@ -136,50 +137,12 @@ class ClientController {
                 console.log('Hello World > helloworld.txt');
             });*/
 
-
-        
-        //var r = /(1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13})\n/g;
-
-
         //var r = /((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n(((2)(\w{32})(\d{13})\s{5}(\d{1})\n)*)(((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*(((4)\s{15}(\d{8})(\w{32}))\n)/g,
         var r = /(1\w{32}\s{3}\d{3}\d{13}\d{13}\d{13})\n((2\w{32}\d{13}\s{5}\d{1}\n)*)((3\w{32}\d{13}\s{3}\d{1}\n)*)(4\s{15}\d{8}\w{32})\n/g,
         s = fromapi,
         m;
 
         var res = '';
-
-        /*
-        var regexLinea2 = /(2\w{32}\d{13}\s{5}\d{1})/g;
-        const matchesLinea2 = linea.matchAll(regex);
-        console.log(linea);
-        for (const m of matches) {
-            console.log("Transaccion:");
-            console.log("Tipo reg:", m[1]);
-            console.log("Id Trans:", m[2]);
-            console.log("Monto:", m[3]);
-            console.log("Tipo:", m[4]);
-            // index of where the match starts
-            const cursorPos = m.index;
-        }*/
-
-        /*
-        while ( m = r.exec(s) ) {
-            // `m` is your match, `m[1]` is the letter
-            //res = res + '\n\n' + m[1] + "\n";
-            //console.log("Valor de m:\n");
-            //console.log(m);
-
-            console.log("Cabeceras:\n");
-            console.log("Tipo:", m[1]);
-            console.log("Id Pago:", m[2]);
-            console.log("Moneda:", m[3]);
-            console.log("Monto total:", m[4]);
-            console.log("Total descuento:", m[5]);
-            console.log("Total c/descuento:", m[6]);
-            //console.log(res);
-        }
-        */
-
         const matches = s.matchAll(r);
         for (const m of matches) {
     
@@ -193,7 +156,7 @@ class ClientController {
             //console.log("Valor de m:\n");
             //console.log(m);
 
-            //console.log("V:\n");
+/*
             console.log("\n\rm1:", m[1]); // Linea 1
             console.log("m2:\n\r", m[2]); // Todas las lineas tipo 2
             //console.log("m3:", m[3]); // Ultimo Tipo 2
@@ -208,12 +171,10 @@ class ClientController {
             ProcesarLinea1(m[1]);
             ProcesarLinea2(m[2]);
             ProcesarLinea3(m[4]);
-            ProcesarLinea4(m[6]);
+            ProcesarLinea4(m[6]);*/
         }
 
         return res;
-        //return ProcesarLinea1();
-        
     }
 }
 

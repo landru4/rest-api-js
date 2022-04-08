@@ -1,5 +1,6 @@
 [ ]{5} // 5 espacios en blanco
 /.\n/ // Todo lo que haya antes de /n
+adonis serve --dev
 
 Cabecera:
 Tipo    Id pago     Moneda M.total Tot.Desc Tot.c/Desc
