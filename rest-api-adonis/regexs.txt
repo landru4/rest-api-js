@@ -1,0 +1,20 @@
+[ ]{5} // 5 espacios en blanco
+/.\n/ // Todo lo que haya antes de /n
+
+Cabecera:
+Tipo    Id pago     Moneda M.total Tot.Desc Tot.c/Desc
+^(1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13})\n
+
+Transaccion:
+Tipo IdTrans Monto       Tipo (1: aprobado, 2: rechazado)
+^(2)(\w{32})(\d{13})\s{5}(\d{1})\n
+
+Descuento:
+Tipo IdDes  Monto       Tipo (1:IVA,2:Retenciones,3:Comisiones,4:Costos extra,5: Ingresos brutos)
+^(3)(\w{32})(\d{13})\s{3}(\d{1})\n
+
+Footer:
+Tipo IdDes FechaPago IdCliente
+^(4)\s{15}(\d{8})(\d{32})[\s]*$
+
+
