@@ -1,3 +1,28 @@
+Consultas:
+1. Qué información del cliente se necesita ver?
+2. El endpoint de la información de clientes brindada, también expira cada 10 minutos?
+3. Respecto a los movimientos, los que son rechazados, no se pagarán nunca? Entonces los pagos que se pagarán son
+solo los aprobados y se determina si es en el futuro o ya están pagos, según la fecha de pago en el registro tipo 4?
+4. Qué pasa si esa fecha es mañana o dentro de más de 20 días? 
+Es decir, no está pago pero tampoco está dentro del plazo que se pagará, se ignora?
+5. El tipo de descuento puede ser que la numeración esté corrida? Es decir empieza en 0?
+En la letra empieza en 1. IVA.
+6. Cómo hacer con la moneda? Diferenciar a la hora de mostrar la información por moneda? O realizar alguna
+conversión de acuerdo a alguna cotización?
+7. Para mostrar la información del monto que los clientes cobraron, se toma en cuenta que la fecha de pago sea anterior a hoy?
+Se toma en cuenta el monto total c/descuentos de cada pago? O se muestra toda la información?
+8. Lo mismo para los futuros pagos, se toma en cuenta que la fecha de pago sea posterior a hoy y en el plazo entre 2 y 20
+dias posteriores?
+9. Hay que realizar validaciones de los montos? Es decir que la suma de los montos de las transacciones aprobadas sea
+igual al monto total del pago? O se puede asumir que es correcto?
+
+
+
+
+
+
+
+
 [ ]{5} // 5 espacios en blanco
 /.\n/ // Todo lo que haya antes de /n
 adonis serve --dev
@@ -26,7 +51,7 @@ Todo:
 (((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*
 (((4)\s{15}(\d{8})(\w{32}))\n)
 
-En sublime
+En sub
 ^((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n(((2)(\w{32})(\d{13})\s{5}(\d{1}))\n)*(((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*(((4)\s{15}(\d{8})(\w{32}))\n)
 
 

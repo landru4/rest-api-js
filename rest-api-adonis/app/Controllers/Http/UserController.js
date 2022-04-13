@@ -10,7 +10,7 @@ class UserController {
         return token;
     }
 
-    async store({ request }) {
+    async signup({ request }) {
         const { email, password } = request.all();
         console.log(email, password);
         const user = await User.create({
@@ -21,6 +21,8 @@ class UserController {
         });
         return this.login(...arguments);
         //return user;
+
+        //res.status(200).json(user);
     };
 }
 

@@ -17,7 +17,7 @@
 const Route = use('Route')
 
 Route.group(() => {
-  Route.post('usuarios/registro', 'UserController.store');
+  Route.post('usuarios/signup', 'UserController.signup');
   Route.post('usuarios/login', 'UserController.login');
 
   Route.get('file', 'ClientController.file');
@@ -25,7 +25,7 @@ Route.group(() => {
 }).prefix('api/v1/');
 
 Route.get('/', () => {
-  return { greeting: 'Hello world in JSON, saludos! Andres' }
+  return { greeting: 'Esta ruta devuelve un saludo :) Andres' }
 })
 
 
