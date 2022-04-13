@@ -21,6 +21,9 @@ Route.group(() => {
   Route.post('usuarios/login', 'UserController.login');
 
   Route.get('file', 'ClientController.file');
+  Route.get('index', 'ClientController.index');
+  Route.get('borrarTodo', 'ClientController.borrarTodo');
+  
 
 }).prefix('api/v1/');
 
