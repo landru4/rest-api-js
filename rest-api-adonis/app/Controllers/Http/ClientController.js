@@ -9,7 +9,7 @@ const Client = use('App/Models/Client');
 const Database = use('Database')
 //const Got = use('got');
 
-async function Prueba(response) {
+async function totalClientes() {
     //let count = await Client.query().where('is_active', '=', true).count()
     //let count = await Client.all().count()
 
@@ -20,7 +20,7 @@ async function Prueba(response) {
     const total = count[0].total
 
     console.log('Cantidad de clientes: ', total);
-    response.send('Cantidad de clientes: ', total)
+    return total;
 }
 
 async function ObtenerDatosClienteAPI (id_cliente, index) {
@@ -306,7 +306,7 @@ class ClientController {
             var cantIntentos = 0
             const result = (async () => {
                 cantIntentos++
-                console.log('Intento ', cantIntentos, ' para obtener el archivo');
+                console.log('Obteniendo archivo...intento ', cantIntentos);
                 return new Promise((resolve, reject) => {
                     request(options, function(error, response) {
                         if (error || response.statusCode !== 200) {
@@ -416,25 +416,27 @@ class ClientController {
                         //var aaa = await linea4;
                     });
                 }
-                resolve();
+                return resolve();
                  //})
             });
             
             promise1.
             then(function () {
-                
+                sleep(10).then(function() {
+                    var cantTotal = totalClientes();
+                    response.ok('TODO EXCELENTE!!!!', cantTotal) 
+                    console.log('Arhivo procesado exitosamente!')
+                });
             }).
-            catch(function () {
+            catch(function (e) {
                 console.log('Error al procesar linea 4: ', e);
-            })
-            .finally(function() { 
-                console.log('Arhivo procesado exitosamente!')
-                Prueba(response)
-                response.send('TODO EXCELENTE!!!!') 
             });
+            /*.finally(function() { 
+
+            });*/
         }
         catch (error) {
-            response.send('Hubo errores: ', error)
+            response.ok('Hubo errores: ', error)
             console.log('Error: ', error)
             return 'Error: ', error
         }
