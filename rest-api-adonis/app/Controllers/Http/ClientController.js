@@ -1,24 +1,89 @@
 'use strict'
 
 const { Exception } = require('sass');
+const { resolveSerializer } = require('../../Models/Client');
 
 //const { jwt } = require('../../../config/auth');
 
 const Client = use('App/Models/Client');
-
 const Database = use('Database')
+//const Got = use('got');
 
-//import http from 'node:http';
-//var http = require('http');
-//var got = require('got');
-///** @type {import('got')} */
-//const got = use('got')
-//const { got } = require('got/dist/source/index.js');
-//./dist/source/index.js
-//import got from 'got';
-//import got from '@adonisjs/got'
-//const got = require("got");
-//const got = require('global-modules/got');
+async function Prueba(response) {
+    //let count = await Client.query().where('is_active', '=', true).count()
+    //let count = await Client.all().count()
+
+    const count = await Database
+                            .from('clients')
+                            .count('* as total')           
+
+    const total = count[0].total
+
+    console.log('Cantidad de clientes: ', total);
+    response.send('Cantidad de clientes: ', total)
+}
+
+async function ObtenerDatosClienteAPI (id_cliente, index) {
+    // Crear la llamada a la API para obtener los datos del cliente.
+    var request = require('request');
+
+    var options = {
+        'method': 'GET',
+        'url': 'https://increase-transactions.herokuapp.com/clients/' + id_cliente,
+        'headers': {
+            'Authorization': 'Bearer 1234567890qwertyuiopasdfghjklzxcvbnm',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const result = (async () => {
+        //console.log('Prometo obtener el cliente: ', id_cliente, '(indice: ', index , ')');
+        return new Promise((resolve, reject) => {
+            request(options, function(error, response) {
+                if (error || response.statusCode !== 200) {
+                    console.log('Error al obtener el cliente: ', id_cliente);
+                    //sleep(3);
+                    setTimeout( function() { resolve(result()) }, 500 );
+                }
+                else {
+                    console.log('Conexion cliente exitosa: ', id_cliente);
+                    return resolve(response.body);
+                }
+            });
+        })
+    });
+
+    var fromapi = await result();
+    try { 
+        //if (isJSON(fromapi)) {
+            let data = JSON.parse(fromapi)
+            //console.log('Id Cliente: ', id_cliente,  ' - mail: ', data.email);
+            //console.log(fromapi);
+
+            await Client.findOrCreate(
+                {
+                    id: id_cliente
+                }, 
+                JSON.parse(fromapi)
+                /*{
+                    id: m[3],
+                    email: m[3],
+                    first_name: 'Pepe',
+                    last_name: 'Prueba',
+                    job: 'Job prueba',
+                    country: 'Uruguay',
+                    address: 'Direccionnnnnn',
+                    zip_code: m[2],
+                    phone: 43627585
+                }*/
+            );
+        //}
+        console.log('Cliente guardado con exito: ', id_cliente);
+    } catch (e) {
+        console.log('Error de API al obtener datos de cliente: ', id_cliente);
+    }
+};
+
 
 async function ProcesarLinea1(linea) {
     console.log("Proceso la linea 1");
@@ -74,137 +139,30 @@ async function ProcesarLinea3(linea) {
     return "Proceso Lineas 3 OK!";
 };
 
-async function ProcesarLinea4(linea) {
+const sleep = (seconds) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, (seconds * 1000));
+    });
+};
+
+async function ProcesarLinea4(linea, index) {
     console.log("Proceso la linea 4");
     var regex = /(4)\s{15}(\d{8})(\w{32})/g;
     const matches = linea.matchAll(regex);
     console.log(linea);
+
     for (const m of matches) {
-        console.log("Tipo reg:", m[1]);
-        console.log("Fecha pago:", m[2]);
-        console.log("Id Cliente:", m[3]);
+        console.log('Tipo reg:', m[1]);
+        console.log('Fecha pago:', m[2]);
+        console.log('Id Cliente:', m[3]);
         // index of where the match starts
         const cursorPos = m.index;
-
-        // Crear la llamada a la API para obtener los datos del cliente.
-        var request = require('request');
-
-        var options = {
-            'method': 'GET',
-            'url': 'https://increase-transactions.herokuapp.com/clients/' + m[3],
-            'headers': {
-                'Authorization': 'Bearer 1234567890qwertyuiopasdfghjklzxcvbnm',
-                'Content-Type': 'application/json'
-            }
-        };
-
-        //let params = { 'id': 'a8733971cfef40ad84b92d040238dfcf' }
-        /*const checkIfOnline = (() => { 
-            return new Promise((resolve, reject)=>{
-                request(options).then( response => {
-                    // this is where you run your script
-                    console.log('Datos del cliente: ', m[3]);
-                    //console.log(JSON.parse(response.body));
-    
-                    console.log(response.body);
-                    //return resolve(JSON.parse(response.body));
-                    return resolve(response.body);
-                }).catch(error=>{
-                    setTimeout( resolve(checkIfOnline()), 5000 );
-                });
-            });
-        })();*/
-
-        const result = (async () => {
-            console.log('Prometo obtener el cliente');
-            return new Promise((resolve, reject) => {
-                request(options, function(error, response) {
-                    if (error || response.statusCode !== 200) {
-                        console.log('Error al obtener el cliente: ');
-                        setTimeout( function() { resolve(result()) }, 5000 );
-                    }
-                    else {
-                        console.log('Conexion cliente exitosa');
-                        return resolve(response.body);
-                    }
-                });
-            })
-        });
-
-        /*
-        const checkIfOnline =  (() => {
-            console.log('Prometo obtener el cliente');
-            return new Promise((resolve, reject) => {
-                request(options, function(error, response) {
-                if (error || response.statusCode!=200) {
-                    console.log('Error al obtener cliente: ', error);
-                    //response.send('Error al obtener cliente: ', error)
-                    setTimeout( checkIfOnline(), 5000 );
-                    resolve();
-                }
-                else {
-                    console.log('Datos del cliente: ', m[3]);
-                    console.log(response.body);
-                    return resolve(response.body);
-                    }
-                });
-            })
-        });*/
-
-        /*
-        const result = new Promise((resolve, reject) => {
-            request(options, function(error, response) {
-            if (error) {
-                console.log('Error: ', error);
-                //return reject(error);
-                setTimeout( resolve(result()), 5000 );
-            }
-            else {
-                console.log('Datos del cliente: ', m[3]);
-                //console.log(JSON.parse(response.body));
-
-                console.log(response.body);
-                //return resolve(JSON.parse(response.body));
-                return resolve(response.body);
-                 }
-            });
-        }) */
-
-        var fromapi = await result();
-        try { 
-            
-
-            //if (isJSON(fromapi)) {
-                console.log('Id Cliente: ', m[3],  ' | Valor de fromapi: ');
-                console.log(fromapi);
-
-                await Client.findOrCreate(
-                    {
-                        id: m[3]
-                    }, 
-                    JSON.parse(fromapi)
-                    /*{
-                        id: m[3],
-                        email: m[3],
-                        first_name: 'Pepe',
-                        last_name: 'Prueba',
-                        job: 'Job prueba',
-                        country: 'Uruguay',
-                        address: 'Direccionnnnnn',
-                        zip_code: m[2],
-                        phone: 43627585
-                    }*/
-                );
-            //}
-            /*else
-                throw new Exception('Error al obtener los datos del clientes');*/
-        } catch (e) {
-            console.log('Error de API al obtener datos de cliente: ', m[3]);
-            //return "Proceso Linea 4 con errores!";
-            //throw e;
-        }
-
+        /*sleep(3).then(function()
+        {*/
+        await ObtenerDatosClienteAPI(m[3],index);
+        /*});*/
     }
+
     return "Proceso Linea 4 OK!";
 };
 
@@ -345,17 +303,19 @@ class ClientController {
 
             */
 
+            var cantIntentos = 0
             const result = (async () => {
-                console.log('Prometo obtener el archivo');
+                cantIntentos++
+                console.log('Intento ', cantIntentos, ' para obtener el archivo');
                 return new Promise((resolve, reject) => {
                     request(options, function(error, response) {
                         if (error || response.statusCode !== 200) {
-                            console.log('Error al obtener el archivo: ');
+                            console.log('Error al obtener el archivo');
                             //response.send('Error al obtener el archivo: ', error)
                             setTimeout( function() { resolve(result()) }, 5000 );
                         }
                         else {
-                            console.log('Conexion exitosa');
+                            //console.log('Conexion exitosa');
                             return resolve(response.body);
                         }
                     });
@@ -377,38 +337,101 @@ class ClientController {
             s = await result(),
             m;
 
-            console.log('Valor de s: ', s)
+            //console.log('Valor de s: ', s)
 
             const matches = s.matchAll(r);
-            for (const m of matches) {
-                const fullMatch = m[0]; 
-                console.log("\n\rm1:", m[1]); // Linea 1
-                console.log("m2:\n\r", m[2]); // Todas las lineas tipo 2
-                //console.log("m3:", m[3]); // Ultimo Tipo 2
-                console.log("m4:\n\r", m[4]); // Todas las lineas tipo 3
-                //console.log("m5:", m[5]); // Ultimo Tipo 3
-                console.log("m6:", m[6]); // Linea Tipo 4
-                
-                res = res + '\n\n' + m[1] + "\n";
-                // index of where the match starts
-                const cursorPos = m.index;
+            var cantidad = 0;
+            var promise1 = new Promise(function(resolve, reject) {
+                //resolve( ()=> { 
+                for (const m of matches) {
+                    cantidad++
 
-                /*
-                ProcesarLinea1(m[1]);
-                ProcesarLinea2(m[2]);
-                ProcesarLinea3(m[4]);
-                ProcesarLinea4(m[6]);*/
-                
-                //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4]), ProcesarLinea4(m[6])])
-                //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4])])
-                Promise.all([ProcesarLinea1(m[1]), ProcesarLinea4(m[6])])
-                //Promise.all([ProcesarLinea1(m[1])])
-                //.then(resultArray => console.log(resultArray))
-                .then(console.log('Arhivo procesado exitosamente!'))
-                .catch(e => { console.log('Error de formato al procesar el archivo: ', e), console.log(e)} );
+                    if (cantidad > 5) {
+                        console.log('HAY MAS DE 5 CLIENTES:', cantidad);
+                        return resolve();
+                    }
 
-            }
-            response.ok('TODO EXCELENTE!!!!')
+                    sleep(2).then(function() {
+                        const fullMatch = m[0]; 
+                        //console.log("\n\rm1:", m[1]); // Linea 1
+                        //console.log("m2:\n\r", m[2]); // Todas las lineas tipo 2
+                        ////console.log("m3:", m[3]); // Ultimo Tipo 2
+                        //console.log("m4:\n\r", m[4]); // Todas las lineas tipo 3
+                        ////console.log("m5:", m[5]); // Ultimo Tipo 3
+                        //console.log("m6:", m[6]); // Linea Tipo 4
+                        
+                        res = res + '\n\n' + m[1] + "\n";
+                        //// index of where the match starts
+                        const cursorPos = m.index;
+
+                        /*
+                        ProcesarLinea1(m[1]);
+                        ProcesarLinea2(m[2]);
+                        ProcesarLinea3(m[4]);
+                        ProcesarLinea4(m[6]);*/
+                        
+                        //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4]), ProcesarLinea4(m[6])])
+                        //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4])])
+                        
+                        //const pru = Promise.all([ProcesarLinea1(m[1]), ProcesarLinea4(m[6],cantidad)])
+
+                        var promise2 = new Promise(function(resolve, reject) {
+                            resolve(ProcesarLinea4(m[6],cantidad));
+                        });
+                            
+                        promise2.
+                            then(function () {
+                                //console.log('Proceso linea 4 ok:', m[6]);
+                            }).
+                            catch(function () {
+                                console.log('Error al procesar linea 4: ', e);
+                            });
+                        /*
+                        const linea4 = (async () => {
+                            console.log('Datos cliente');
+                            return new Promise((resolve, reject) => {
+                                ProcesarLinea4(m[6],cantidad, function(error, response) {
+                                    if (error) {
+                                        console.log('Error al procesar linea 4: ', e);
+                                        //response.send('Error al obtener el archivo: ', error)
+                                        //setTimeout( function() { resolve(result()) }, 5000 );
+                                    }
+                                    else {
+                                        console.log('Conexion exitosa');
+                                        return resolve(response.body);
+                                    }
+                                });
+                            });
+
+                        })*/
+                        ////Promise.all([ProcesarLinea1(m[1])])
+                        ////.then(resultArray => console.log(resultArray))
+                        //.then(
+                        /*() => { 
+                                console.log('Arhivo procesado exitosamente!'),
+                                Prueba(response)
+                            }*/
+                            //)
+                        //.catch(e => { console.log('Error de formato al procesar el archivo: ', e)} );
+                        //var aaa = await linea4;
+                    });
+                }
+                resolve();
+                 //})
+            });
+            
+            promise1.
+            then(function () {
+                
+            }).
+            catch(function () {
+                console.log('Error al procesar linea 4: ', e);
+            })
+            .finally(function() { 
+                console.log('Arhivo procesado exitosamente!')
+                Prueba(response)
+                response.send('TODO EXCELENTE!!!!') 
+            });
         }
         catch (error) {
             response.send('Hubo errores: ', error)
@@ -418,6 +441,7 @@ class ClientController {
         return res;
     }
 }
+
 
 
 
