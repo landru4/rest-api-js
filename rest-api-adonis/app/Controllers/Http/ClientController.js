@@ -10,17 +10,37 @@ const Database = use('Database')
 //const Got = use('got');
 
 async function totalClientes() {
-    //let count = await Client.query().where('is_active', '=', true).count()
-    //let count = await Client.all().count()
-
     const count = await Database
                             .from('clients')
-                            .count('* as total')           
-
+                            .count('* as total')
     const total = count[0].total
-
     console.log('Cantidad de clientes: ', total);
     return total;
+}
+
+async function guardarClienteDummy(id_cliente) {
+    try { 
+        await Client.findOrCreate( 
+            {
+                id: id_cliente
+            }, 
+            {
+                id: id_cliente,
+                email: id_cliente,
+                first_name: 'Pepe',
+                last_name: 'Prueba',
+                job: 'Job prueba',
+                country: 'Uruguay',
+                address: 'Direccionnnnnn',
+                zip_code: '123',
+                phone: '43627585'
+            }
+        );
+        console.log('Cliente creado/encontrado con exito: ', id_cliente);
+    } catch (e) {
+        console.log('Error al crear cliente: ', id_cliente);
+        console.log('DB Error: ', e);
+    }
 }
 
 async function ObtenerDatosClienteAPI (id_cliente, index) {
@@ -40,13 +60,15 @@ async function ObtenerDatosClienteAPI (id_cliente, index) {
         //console.log('Prometo obtener el cliente: ', id_cliente, '(indice: ', index , ')');
         return new Promise((resolve, reject) => {
             request(options, function(error, response) {
-                if (error || response.statusCode !== 200) {
-                    console.log('Error al obtener el cliente: ', id_cliente);
+                if (error || response.statusCode !== 200 || response.body===null) {
+                    console.log('API: Error al obtener el cliente: ', id_cliente);
+                    if (error)
+                        console.log('Error: ', error);
                     //sleep(3);
                     setTimeout( function() { resolve(result()) }, 500 );
                 }
                 else {
-                    console.log('Conexion cliente exitosa: ', id_cliente);
+                    console.log('API: Datos cliente con exito: ', id_cliente);
                     return resolve(response.body);
                 }
             });
@@ -56,31 +78,31 @@ async function ObtenerDatosClienteAPI (id_cliente, index) {
     var fromapi = await result();
     try { 
         //if (isJSON(fromapi)) {
-            let data = JSON.parse(fromapi)
+            //let data = JSON.parse(fromapi)
             //console.log('Id Cliente: ', id_cliente,  ' - mail: ', data.email);
-            //console.log(fromapi);
+            //let x = { updated_at : Date.now() }
+            //fromapi +=  JSON.parse(fromapi) 
+            var jsonA = {...JSON.parse(fromapi) ,...{ updated_at : Date.now() }}
 
-            await Client.findOrCreate(
-                {
-                    id: id_cliente
-                }, 
-                JSON.parse(fromapi)
-                /*{
-                    id: m[3],
-                    email: m[3],
-                    first_name: 'Pepe',
-                    last_name: 'Prueba',
-                    job: 'Job prueba',
-                    country: 'Uruguay',
-                    address: 'Direccionnnnnn',
-                    zip_code: m[2],
-                    phone: 43627585
-                }*/
-            );
+            //var jsonString = fromapi
+
+            //console.log('String:', jsonA);
+
+            const affectedRows = await Database
+            .table('clients')
+            .where('id', id_cliente)
+            .update(jsonA)
+            /*
+            const client = await Client.find(id_cliente)
+            await client
+            .update( JSON.parse(fromapi) )*/
         //}
-        console.log('Cliente guardado con exito: ', id_cliente);
+        if (affectedRows > 0)
+            console.log('Cliente actualizado con exito: ', id_cliente);
+        else console.log('Cliente sin cambios: ', id_cliente);
     } catch (e) {
-        console.log('Error de API al obtener datos de cliente: ', id_cliente);
+        console.log('API: Error al obtener datos de cliente: ', id_cliente);
+        console.log('API: Error: ', e);
     }
 };
 
@@ -159,6 +181,7 @@ async function ProcesarLinea4(linea, index) {
         const cursorPos = m.index;
         /*sleep(3).then(function()
         {*/
+        await guardarClienteDummy(m[3])
         await ObtenerDatosClienteAPI(m[3],index);
         /*});*/
     }

@@ -6,7 +6,7 @@ const Schema = use('Schema')
 class ClientSchema extends Schema {
   async up () {
     this.create('clients', (table) => {
-      table.string('id', 32).notNullable().unique()
+      table.string('id', 32).notNullable().primary()
       table.string('email', 254).notNullable().unique()
       table.string('first_name', 60).notNullable()
       table.string('last_name', 60).notNullable()

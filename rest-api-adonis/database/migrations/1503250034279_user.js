@@ -12,6 +12,16 @@ class UserSchema extends Schema {
       table.string('password', 60).notNullable()
       table.timestamps()
     })
+    /*
+    {
+      "email": "test6landru@gmail.com",
+      "password": "123456"
+    }
+    */
+    // Password cifrada: $2a$10$LeNsuG1RFtvZWJbJEUkch.bvhuDUKVixk0VPD9RLQ5MjPUzijJ6t2
+
+    //Token 7cba008e3783a9d558d39bfba1294fffjjSfCVL27kEoqG2PiR53pqNoNQYd/bqgbNtRIzPNPROD37wDZRAADXkj5fNlfK2n
+
   }
 
   async down () {

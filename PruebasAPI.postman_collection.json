@@ -1,0 +1,337 @@
+{
+	"info": {
+		"_postman_id": "15c1fd37-61f2-441e-9db5-ff0bca0b98f5",
+		"name": "PruebasAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Prueba",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "c",
+					"host": [
+						"c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "registro",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/usuarios/signup",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjQsImlhdCI6MTY0OTgwNjI1MX0.N4_UOohShD7Cewqj1TqmLI2CXPt7ywBl79MltI5fmFg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/usuarios/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fileLocal",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "7cba008e3783a9d558d39bfba1294fffjjSfCVL27kEoqG2PiR53pqNoNQYd/bqgbNtRIzPNPROD37wDZRAADXkj5fNlfK2n",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/file",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "borrarClientes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/borrarTodo",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"borrarTodo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listarClientes",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/index",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "file",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": false
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1234567890qwertyuiopasdfghjklzxcvbnm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://increase-transactions.herokuapp.com/file.txt",
+					"protocol": "https",
+					"host": [
+						"increase-transactions",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"file.txt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "client",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": false
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1234567890qwertyuiopasdfghjklzxcvbnm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://increase-transactions.herokuapp.com/clients/:id",
+					"protocol": "https",
+					"host": [
+						"increase-transactions",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"clients",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": " 6d1228e5787b408bb5be58bbd9c2a2e4"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "clients",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {},
+				"followOriginalHttpMethod": false,
+				"followRedirects": true,
+				"strictSSL": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1234567890qwertyuiopasdfghjklzxcvbnm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://increase-transactions.herokuapp.com/clients/?id=1",
+					"protocol": "https",
+					"host": [
+						"increase-transactions",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"clients",
+						""
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

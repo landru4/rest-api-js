@@ -8,13 +8,13 @@ class PagoSchema extends Schema {
     this.create('pagos', (table) => {
       //table.increments()
       //table.foreign('causeId').references('Cause.id');
-      table.integer('id').notNullable().unique()
-      table.integer('moneda')
+      table.string('id', 32).notNullable().primary()
+      table.integer('moneda') // 0: Peso argentino 1: Dolar
       table.integer('monto_total').notNullable().defaultTo(0)
       table.integer('total_descuento').notNullable().defaultTo(0)
       table.integer('total_con_descuento').notNullable().defaultTo(0)
-      table.datetime('fecha_pago').notNullable()
-      table.integer('id_cliente').notNullable().defaultTo(0)
+      table.date('fecha_pago').notNullable()
+      table.string('id_cliente', 32).references('id').inTable('clientes')
       table.timestamps()
     })
   }
