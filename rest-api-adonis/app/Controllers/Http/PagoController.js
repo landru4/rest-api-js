@@ -7,9 +7,7 @@ class PagoController {
         //console.log('Pago a guardar: ', pago);
         try { 
             await Pago.findOrCreate( 
-                {
-                    id: pago.id
-                }, 
+                { id: pago.id }, 
                 { ...pago }
                 /*
                 {
@@ -23,8 +21,7 @@ class PagoController {
                 }*/
                 /*...pago*/
             );
-            console.log('Pago creado/encontrado con exito: ', pago.id);
-            //return pago.id
+            //console.log('Pago creado/encontrado con exito: ', pago.id);
         } catch (e) {
             console.log('Error al crear pago: ', pago.id);
             console.log('DB Error: ', e);
