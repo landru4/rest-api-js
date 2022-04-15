@@ -1,5 +1,7 @@
 'use strict'
 
+//const Transaccion = require('../../Models/Transaccion');
+
 //const { Exception } = require('sass');
 //const { resolveSerializer } = require('../../Models/Client');
 
@@ -7,6 +9,8 @@
 
 const Client = use('App/Models/Client');
 const Pago = use('App/Models/Pago');
+const Transaccion = use('App/Models/Transaccion');
+const Descuento = use('App/Models/Descuento');
 const Database = use('Database')
 //const Got = use('got');
 
@@ -49,8 +53,41 @@ async function guardarPago(id_pago, pago) {
             /*...pago*/
         );
         console.log('Pago creado/encontrado con exito: ', id_pago);
+        return id_pago
     } catch (e) {
         console.log('Error al crear pago: ', id_pago);
+        console.log('DB Error: ', e);
+    }
+}
+
+async function guardarTransaccion(id_transaccion, transaccion) {
+    //console.log('Trans a guardar: ', transaccion);
+    try { 
+        await Transaccion.findOrCreate( 
+            {
+                id: id_transaccion
+            }, 
+            { ...transaccion }
+        );
+        //console.log('Trans creada/encontrada con exito: ', id_transaccion);
+    } catch (e) {
+        console.log('Error al crear Trans: ', id_transaccion);
+        console.log('DB Error: ', e);
+    }
+}
+
+async function guardarDescuento(id_descuento, descuento) {
+    //console.log('Descuento a guardar: ', descuento);
+    try { 
+        await Descuento.findOrCreate( 
+            {
+                id: id_descuento
+            }, 
+            { ...descuento }
+        );
+        //console.log('Descuento creado/encontrado con exito: ', id_descuento);
+    } catch (e) {
+        console.log('Error al crear Descuento: ', id_descuento);
         console.log('DB Error: ', e);
     }
 }
@@ -93,15 +130,16 @@ async function ObtenerDatosClienteAPI (id_cliente, index) {
         }
     };
 
+    var cantVecesIntentoObtenerCliente = 0
     const result = (async () => {
+        cantVecesIntentoObtenerCliente++;
         //console.log('Prometo obtener el cliente: ', id_cliente, '(indice: ', index , ')');
         return new Promise((resolve, reject) => {
             request(options, function(error, response) {
                 if (error || response.statusCode !== 200 || response.body===null) {
-                    console.log('API: Error al obtener el cliente: ', id_cliente);
+                    console.log('API: Error al obtener el cliente: ', id_cliente, 'Intento: ', cantVecesIntentoObtenerCliente);
                     if (error)
                         console.log('Error: ', error);
-                    //sleep(3);
                     setTimeout( function() { resolve(result()) }, 500 );
                 }
                 else {
@@ -166,53 +204,59 @@ async function ProcesarLinea1y4(linea1, linea4, index) {
             total_descuento: m[5],
             total_con_descuento: m[6]
         }
-        //console.log('Datos pago linea 1: ', jsonResult)
-        // index of where the match starts
-        const cursorPos = m.index;
     }
     var jLinea4 = await ProcesarLinea4(linea4, index);
     //console.log('Datos pago linea 4: ', jLinea4)
     return  { ...jsonLinea1, ...jLinea4 };
 };
 
-async function ProcesarLinea2(linea) {
-    console.log("Proceso la linea 2");
+async function ProcesarLinea2(linea, id_cliente, id_pago) {
+    //console.log("Proceso la linea 2");
     var regex = /(2)(\w{32})(\d{13})\s{5}(\d{1})/g;
     const matches = linea.matchAll(regex);
-    console.log(linea);
+    //console.log(linea);
+    var jsonResult
     for (const m of matches) {
-        console.log("Transaccion:");
+        /*console.log("Transaccion:");
         console.log("Tipo reg:", m[1]);
         console.log("Id Trans:", m[2]);
         console.log("Monto:", m[3]);
-        console.log("Tipo:", m[4]);
-        // index of where the match starts
-        const cursorPos = m.index;
+        console.log("Tipo:", m[4]);*/
+        jsonResult = 
+        {
+            id: m[2],
+            monto_total: m[3],
+            tipo: m[4],
+            id_cliente: id_cliente,
+            id_pago: id_pago
+        }
+        await guardarTransaccion(jsonResult.id, jsonResult)
     }
     return "Proceso Lineas 2 OK!";
 };
 
 // Estas funciones estan independientes para poder tener mejor mantenimiento ante posibles cambios en la estructura
-async function ProcesarLinea3(linea) {
-    console.log("Proceso la linea 3");
+async function ProcesarLinea3(linea, id_pago) {
+    //console.log("Proceso la linea 3");
     var regex = /(3)(\w{32})(\d{13})\s{3}(\d{1})/g;
     const matches = linea.matchAll(regex);
-    console.log(linea);
+    //console.log(linea);
+    var jsonResult
     for (const m of matches) {
-        console.log("Tipo reg:", m[1]);
+        /*console.log("Tipo reg:", m[1]);
         console.log("Id Desc:", m[2]);
         console.log("Monto:", m[3]);
-        console.log("Tipo:", m[4]);
-        // index of where the match starts
-        const cursorPos = m.index;
+        console.log("Tipo:", m[4]);*/
+        jsonResult = 
+        {
+            id: m[2],
+            monto: m[3],
+            tipo: m[4],
+            id_pago: id_pago
+        }
+        await guardarDescuento(jsonResult.id, jsonResult)
     }
     return "Proceso Lineas 3 OK!";
-};
-
-const sleep = (seconds) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, (seconds * 1000));
-    });
 };
 
 async function ProcesarLinea4(linea, index) {
@@ -226,29 +270,22 @@ async function ProcesarLinea4(linea, index) {
         console.log('Fecha pago:', m[2]);
         console.log('Id Cliente:', m[3]);*/
         // index of where the match starts
-        const cursorPos = m.index;
-        /*sleep(3).then(function()
-        {*/
         jsonResult = 
         {
             fecha_pago: m[2],
             id_cliente: m[3]
         }
-        await guardarClienteDummy(m[3])
-
-        //console.log('Datos pago linea 4: ', jsonResult)
-        await ObtenerDatosClienteAPI(m[3],index); // TODO: ver donde va para obtener los datos del cliente
-        /*});*/
+        await guardarClienteDummy(m[3]);
+        await ObtenerDatosClienteAPI(m[3],index);
     }
     return jsonResult; // Retorna fecha de pago y el id del cliente
 };
 
 async function probandoSincronico() {
-    //console.log('BBBBBBBBBBBBBBBBB!')
     /*var cantTotal = */
     await totalClientes();
     //return 'Arhivo procesado exitosamente! Cant clientes en bd actualmente:' + cantTotal;
-}
+};
 
 
 async function Proceso(regText) {
@@ -258,7 +295,7 @@ async function Proceso(regText) {
     const matches = regText.matchAll(r);
     for (const m of matches) {
     //while (cantidad < 5 /* cantidad <= cantidadMatches*/) {
-        cantidad++
+        cantidad++;
         //const m = matches[cantidad]
         
         if (cantidad > 5) {
@@ -277,8 +314,6 @@ async function Proceso(regText) {
             //console.log("m6:", m[6]); // Linea Tipo 4
             
             //res = res + '\n\n' + m[1] + "\n";
-            //// index of where the match starts
-            const cursorPos = m.index;
 
             /*
             ProcesarLinea1(m[1]);
@@ -299,7 +334,8 @@ async function Proceso(regText) {
                 then(function (resolve) {
                     //console.log('Datos pago resolve: ', resolve)
                     //var res1 = await 
-                    guardarPago(resolve.id, resolve)
+                    var id_pago = guardarPago(resolve.id, resolve)
+                    Promise.all([ProcesarLinea2(m[2], resolve.id_cliente, id_pago), ProcesarLinea3(m[4], id_pago)])            
                 }).
                 catch(function (e) {
                     console.log('Error al procesar linea 4: ', e);
@@ -396,6 +432,31 @@ class ClientController {
         //await Client.down().then(function(resu){
 
         var message = ''
+        message += await Database.truncate('transaccions').then(function(resu){
+            if (resu) {
+                console.log('OK borrar todas las trans')
+                return 'OK borrar todas las trans'
+            }
+            else {
+                console.log('Ocurrió un error, no se pueden borrar las trans')
+                return 'Ocurrió un error, no se pueden borrar las trans'
+                //response.error('Ocurrió un error, no se pueden borrar las trans')
+            }
+        }) + '\n'
+
+        message += await Database.truncate('descuentos').then(function(resu){
+            if (resu) {
+                console.log('OK borrar todos los descuentos')
+                return 'OK borrar todos los descuentos'
+                //response.ok('OK borrar todos los descuentos')
+            }
+            else {
+                console.log('Ocurrió un error, no se pueden borrar los descuentos')
+                return 'Ocurrió un error, no se pueden borrar los descuentos'
+                //response.error('Ocurrió un error, no se pueden borrar los descuentos')
+            }
+        }) + '\n'
+
         message += await Database.truncate('pagos').then(function(resu){
             if (resu) {
                 console.log('OK borrar todos los pagos')
@@ -407,7 +468,7 @@ class ClientController {
                 return 'Ocurrió un error, no se pueden borrar los pagos'
                 //response.error('Ocurrió un error, no se pueden borrar los pagos')
             }
-        })
+        }) + '\n'
 
         message += '\n' + await Database.truncate('clients').then(function(resu){
             if (resu) {
@@ -420,7 +481,7 @@ class ClientController {
                 return 'Ocurrió un error, no se pueden borrar los clientes'
                 //response.error('Ocurrió un error, no se pueden borrar los clientes')
             } 
-        })
+        }) + '\n'
 
         response.ok(message)
         //return 'Tablas de datos borrados con exito!!!'
@@ -434,50 +495,12 @@ class ClientController {
             console.log('Autenticacion OK')
             res += 'Autenticacion OK\n'
 
-          } catch (error) {
+            } catch (error) {
             console.log('Missing or invalid api token')
+            response.status(403).send('No tienes autorizacion')
             return 'Missing or invalid api token'
-          }
+            }
 
-        //if (!req.headers.Authorization) {
-            //return res.status(403).send({ message: 'No tienes autorizacion'})
-            //return 'No tienes autorizacion'
-        //}
-        //console.log(request.all)
-
-        //const token = request.header.Authorization//.split(' ')[1]
-        //const token = auth
-        
-        //console.log(token)
-
-        //const exito = await auth.attempt(token);
-
-        //console.log("Token enviado: ", token)
-
-        
-        //decodeToken (token)
-        //    .then(console.log("Login exitoso!"))
-            /*.then(response => {
-                message: 'Login exitoso'
-            })*/
-       //     .catch(response => {
-       //         res.status(response.status)
-       //     })
-       
-        
-        
-        /*const { email, password } = request.all();
-        const token = await auth.attempt(email, password);
-        return token;*/
-        //const request = require('request');
-
-        /*
-        {
-            "email": "test6landru@gmail.com",
-            "password": "123456"
-        }
-        token: "e16a461988f343f34dc81c0042318230rJT7wM//3vK2XA/f0IrM2+jNyOQ6oxwIWmJqwBTRJlYDLknuKnLI2orzuMfn5rtz"
-        */
         try {
 
             var request = require('request');
@@ -500,7 +523,6 @@ class ClientController {
                     request(options, function(error, response) {
                         if (error || response.statusCode !== 200) {
                             console.log('Error al obtener el archivo');
-                            //response.send('Error al obtener el archivo: ', error)
                             setTimeout( function() { resolve(result()) }, 5000 );
                         }
                         else {
@@ -514,59 +536,23 @@ class ClientController {
             
             var s = await result();
 
-            //var promise1 = new Promise();
-
             var promise1 = new Promise(function(resolve, reject) {
                 resolve(Proceso(s))
             });
-
-            //await probandoSincronico();
-            //setTimeout( function() { var mens = probandoSincronico() }, 5000 );
 
             promise1
             .then(function (resolve) {
                 if (resolve) {
                     res += '\n' + resolve + '\n'
                     setTimeout( function() { probandoSincronico() }, 5000 );
-                    //var mens = probandoSincronico();
-                    //console.log(mens)
-                    //console.log('Fin de procesar clientes y pagos!\n')
-                    //var ttt = await probandoSincronico();
-    /*
-                    var promise3 = new Promise(function(resolve, reject) {
-                        resolve (probandoSincronico());
-                    });
-                        
-                    promise3.
-                        then(function (resolve) {
-                            res += resolve + '\n'
-                            console.log(resolve);
-                            //response.ok(resolve)
-                        }).
-                        catch(function () {
-                            console.log('Error al procesar promesa 3: ', e);
-                        });*/
-
-                    //response.ok(resolve)
-                    //sleep(10).then(function() {
-                        /*var cantTotal = totalClientes();
-                        console.log('Arhivo procesado exitosamente!')
-                        response.ok('TODO EXCELENTE!!!!', cantTotal)*/
-                    //});
                 }
             })
-            //.then()
+
             .catch(function (e) {
                 console.log('Error al procesar archivo: ', e);
             });
-
-            
-            /*.finally(function() { 
-
-            });*/
         }
         catch (error) {
-            //res += resolve + '\n'
             response.ok('Hubo errores: ', error)
             console.log('Error: ', error)
             return 'Error: ', error

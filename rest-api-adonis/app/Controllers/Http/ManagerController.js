@@ -8,6 +8,13 @@ var fs = require('fs');
     console.log('Archivo leido > file.txt');
 });*/
 
+/*
+const sleep = (seconds) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, (seconds * 1000));
+    });
+};*/
+
 class ManagerController {
 }
 

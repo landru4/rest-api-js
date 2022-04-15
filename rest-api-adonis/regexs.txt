@@ -17,10 +17,13 @@ dias posteriores?
 igual al monto total del pago? O se puede asumir que es correcto?
 
 
-883d07d3e46546719213252c8e99ebb0
-
-viejo:
-51290bd440ed4b6cbe49a53d87788d43
+    /*
+    {
+            "email": "test6landru@gmail.com",
+            "password": "123456"
+   }
+    token: "e16a461988f343f34dc81c0042318230rJT7wM//3vK2XA/f0IrM2+jNyOQ6oxwIWmJqwBTRJlYDLknuKnLI2orzuMfn5rtz"
+    */
 
 
 
