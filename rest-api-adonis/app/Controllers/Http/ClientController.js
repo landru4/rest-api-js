@@ -4,6 +4,8 @@
 
 //const { Exception } = require('sass');
 //const { resolveSerializer } = require('../../Models/Client');
+//const { resolveSerializer } = require('../../Models/Pago');
+//const { resolveSerializer } = require('../../Models/Pago');
 
 //const { jwt } = require('../../../config/auth');
 
@@ -12,6 +14,8 @@ const Pago = use('App/Models/Pago');
 const Transaccion = use('App/Models/Transaccion');
 const Descuento = use('App/Models/Descuento');
 const Database = use('Database')
+
+const PagoController = use('App/Controllers/Http/PagoController');
 //const Got = use('got');
 
 async function totalPago() {
@@ -32,62 +36,34 @@ async function totalClientes() {
     return total;
 }
 
-async function guardarPago(id_pago, pago) {
-    //console.log('Pago a guardar: ', pago);
-    try { 
-        await Pago.findOrCreate( 
-            {
-                id: id_pago
-            }, 
-            { ...pago }
-            /*
-            {
-                id: id_pago,
-                moneda: pago.moneda,
-                monto_total: pago.monto_total,
-                total_descuento: pago.total_descuento,
-                total_con_descuento: pago.total_con_descuento,
-                fecha_pago: pago.fecha_pago, //'2022-01-04',
-                id_cliente: pago.id_cliente //'d78d62b3e47e4f96ad61cf67db9a6110'
-            }*/
-            /*...pago*/
-        );
-        console.log('Pago creado/encontrado con exito: ', id_pago);
-        return id_pago
-    } catch (e) {
-        console.log('Error al crear pago: ', id_pago);
-        console.log('DB Error: ', e);
-    }
-}
-
-async function guardarTransaccion(id_transaccion, transaccion) {
+async function guardarTransaccion(transaccion) {
     //console.log('Trans a guardar: ', transaccion);
     try { 
         await Transaccion.findOrCreate( 
             {
-                id: id_transaccion
+                id: transaccion.id
             }, 
             { ...transaccion }
         );
         //console.log('Trans creada/encontrada con exito: ', id_transaccion);
     } catch (e) {
-        console.log('Error al crear Trans: ', id_transaccion);
+        console.log('Error al crear Trans: ', transaccion.id);
         console.log('DB Error: ', e);
     }
 }
 
-async function guardarDescuento(id_descuento, descuento) {
+async function guardarDescuento(descuento) {
     //console.log('Descuento a guardar: ', descuento);
     try { 
         await Descuento.findOrCreate( 
             {
-                id: id_descuento
+                id: descuento.id
             }, 
             { ...descuento }
         );
         //console.log('Descuento creado/encontrado con exito: ', id_descuento);
     } catch (e) {
-        console.log('Error al crear Descuento: ', id_descuento);
+        console.log('Error al crear Descuento: ', descuento.id);
         console.log('DB Error: ', e);
     }
 }
@@ -117,7 +93,7 @@ async function guardarClienteDummy(id_cliente) {
     }
 }
 
-async function ObtenerDatosClienteAPI (id_cliente, index) {
+async function ObtenerDatosClienteAPI (id_cliente) {
     // Crear la llamada a la API para obtener los datos del cliente.
     var request = require('request');
 
@@ -181,8 +157,7 @@ async function ObtenerDatosClienteAPI (id_cliente, index) {
     }
 };
 
-
-async function ProcesarLinea1y4(linea1, linea4, index) {
+async function extraerDatosPago(linea1, jLinea4) {
     //console.log("Proceso la linea 1");
     var regex = /(1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13})/g;
     const matches = linea1.matchAll(regex);
@@ -205,12 +180,12 @@ async function ProcesarLinea1y4(linea1, linea4, index) {
             total_con_descuento: m[6]
         }
     }
-    var jLinea4 = await ProcesarLinea4(linea4, index);
+    
     //console.log('Datos pago linea 4: ', jLinea4)
     return  { ...jsonLinea1, ...jLinea4 };
 };
 
-async function ProcesarLinea2(linea, id_cliente, id_pago) {
+async function procesarTransacciones(linea, id_cliente, id_pago) {
     //console.log("Proceso la linea 2");
     var regex = /(2)(\w{32})(\d{13})\s{5}(\d{1})/g;
     const matches = linea.matchAll(regex);
@@ -230,13 +205,13 @@ async function ProcesarLinea2(linea, id_cliente, id_pago) {
             id_cliente: id_cliente,
             id_pago: id_pago
         }
-        await guardarTransaccion(jsonResult.id, jsonResult)
+        guardarTransaccion(jsonResult)
     }
-    return "Proceso Lineas 2 OK!";
+    //return "Proceso Lineas 2 OK!";
 };
 
 // Estas funciones estan independientes para poder tener mejor mantenimiento ante posibles cambios en la estructura
-async function ProcesarLinea3(linea, id_pago) {
+async function procesarDescuentos(linea, id_pago) {
     //console.log("Proceso la linea 3");
     var regex = /(3)(\w{32})(\d{13})\s{3}(\d{1})/g;
     const matches = linea.matchAll(regex);
@@ -254,12 +229,12 @@ async function ProcesarLinea3(linea, id_pago) {
             tipo: m[4],
             id_pago: id_pago
         }
-        await guardarDescuento(jsonResult.id, jsonResult)
+        guardarDescuento(jsonResult)
     }
-    return "Proceso Lineas 3 OK!";
+    //return "Proceso Lineas 3 OK!";
 };
 
-async function ProcesarLinea4(linea, index) {
+async function ProcesarLinea4(linea) {
     //console.log("Proceso la linea 4");
     var regex = /(4)\s{15}(\d{8})(\w{32})/g;
     const matches = linea.matchAll(regex);
@@ -276,14 +251,13 @@ async function ProcesarLinea4(linea, index) {
             id_cliente: m[3]
         }
         await guardarClienteDummy(m[3]);
-        await ObtenerDatosClienteAPI(m[3],index);
     }
     return jsonResult; // Retorna fecha de pago y el id del cliente
 };
 
 async function probandoSincronico() {
     /*var cantTotal = */
-    await totalClientes();
+    return totalClientes();
     //return 'Arhivo procesado exitosamente! Cant clientes en bd actualmente:' + cantTotal;
 };
 
@@ -317,29 +291,49 @@ async function Proceso(regText) {
 
             /*
             ProcesarLinea1(m[1]);
-            ProcesarLinea2(m[2]);
-            ProcesarLinea3(m[4]);
+            procesarTransacciones(m[2]);
+            procesarDescuentos(m[4]);
             ProcesarLinea4(m[6]);*/
             
-            //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4]), ProcesarLinea4(m[6])])
-            //Promise.all([ProcesarLinea1(m[1]), ProcesarLinea2(m[2]), ProcesarLinea3(m[4])])
+            //Promise.all([ProcesarLinea1(m[1]), procesarTransacciones(m[2]), procesarDescuentos(m[4]), ProcesarLinea4(m[6])])
+            //Promise.all([ProcesarLinea1(m[1]), procesarTransacciones(m[2]), procesarDescuentos(m[4])])
             
             //const pru = Promise.all([ProcesarLinea1(m[1]), ProcesarLinea4(m[6],cantidad)])
+            var jLinea4 = await ProcesarLinea4(m[6]);
+            
+            var pago = await extraerDatosPago(m[1],jLinea4,cantidad)            
+            const pagoC = new PagoController()
+            await pagoC.guardarPago(pago)
+            await Promise.all([procesarTransacciones(m[2], pago.id_cliente, pago.id), procesarDescuentos(m[4], pago.id),ObtenerDatosClienteAPI(jLinea4.id_cliente)])
 
+            /*
             var promise2 = new Promise(function(resolve, reject) {
-                resolve(ProcesarLinea1y4(m[1],m[6],cantidad))
+                resolve(extraerDatosPago(m[1],m[6],cantidad))
             });
                 
             promise2.
                 then(function (resolve) {
                     //console.log('Datos pago resolve: ', resolve)
                     //var res1 = await 
-                    var id_pago = guardarPago(resolve.id, resolve)
-                    Promise.all([ProcesarLinea2(m[2], resolve.id_cliente, id_pago), ProcesarLinea3(m[4], id_pago)])            
+                    var id_pago = resolve.id
+                    var pago = resolve
+                    var promise3 = new Promise(function(resolve, reject) {
+                        const pagoC = new PagoController()
+                        pagoC.guardarPago(id_pago, pago)
+                    });
+                    promise3.
+                    then(function (resolve) {
+                        resolve(Promise.all([procesarTransacciones(m[2], resolve.id_cliente, id_pago), procesarDescuentos(m[4], id_pago)]))
+                    }).
+                    catch(function (e) {
+                        console.log('Error al guardar pago: ', e);
+                    });
+
                 }).
                 catch(function (e) {
                     console.log('Error al procesar linea 4: ', e);
                 });
+                */
 
             /*
             var promise2 = new Promise(function(resolve, reject) {
@@ -410,8 +404,10 @@ async function Proceso(regText) {
         })
     });*/
 
+    
+    console.log('Fin del for');
     //resolve('Fin del for');
-     //})
+    //})
      return 'Fin proceso'
 }
 
@@ -535,22 +531,43 @@ class ClientController {
 
             
             var s = await result();
+            await Proceso(s)
+            await probandoSincronico()
 
+            const pagos = await Pago.all()//.then((result) => result.data);
+            //const postsJSON = pagos.map((pago) => pago.serialize())
+
+            
+            console.log('Imprime JSON: ');
+            console.log(pagos.toJSON ());
+            //console.log(postsJSON);
+
+            /*
             var promise1 = new Promise(function(resolve, reject) {
-                resolve(Proceso(s))
+                resolve()
             });
 
             promise1
             .then(function (resolve) {
                 if (resolve) {
                     res += '\n' + resolve + '\n'
+                    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
                     setTimeout( function() { probandoSincronico() }, 5000 );
                 }
             })
-
+            .then(function (resolve) {
+                if (resolve) {
+                    const pagos = Pago.all()
+                    const postsJSON = pagos.map((pago) => pago.serialize())
+                    console.log('Imprime JSON: ');
+                    console.log(postsJSON);
+                }
+            }
+            )
             .catch(function (e) {
                 console.log('Error al procesar archivo: ', e);
             });
+            */
         }
         catch (error) {
             response.ok('Hubo errores: ', error)
