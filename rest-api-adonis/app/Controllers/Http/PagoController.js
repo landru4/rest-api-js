@@ -30,6 +30,17 @@ class PagoController {
             console.log('DB Error: ', e);
         }
     }
+
+    // Total pago para un cliente
+    async totalPago(id_cliente) {
+        const monto = await Database
+                                .from('pagos')
+                                .where('id_cliente=' + id_cliente)
+                                .sum('monto_total as total')
+        const total = monto[0].total
+        console.log('Monto total pagos: ', total);
+        return total;
+    }
 }
 
 module.exports = PagoController

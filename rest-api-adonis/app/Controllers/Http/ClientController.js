@@ -16,16 +16,7 @@ const Descuento = use('App/Models/Descuento');
 const Database = use('Database')
 
 const PagoController = use('App/Controllers/Http/PagoController');
-//const Got = use('got');
-
-async function totalPago() {
-    const monto = await Database
-                            .from('pagos')
-                            .sum('monto_total as total')
-    const total = monto[0].total
-    console.log('Monto total pagos: ', total/100);
-    return total;
-}
+const TransaccionController = use('App/Controllers/Http/TransaccionController');
 
 async function totalClientes() {
     const count = await Database
@@ -34,22 +25,6 @@ async function totalClientes() {
     const total = count[0].total
     console.log('Cantidad de clientes: ', total);
     return total;
-}
-
-async function guardarTransaccion(transaccion) {
-    //console.log('Trans a guardar: ', transaccion);
-    try { 
-        await Transaccion.findOrCreate( 
-            {
-                id: transaccion.id
-            }, 
-            { ...transaccion }
-        );
-        //console.log('Trans creada/encontrada con exito: ', id_transaccion);
-    } catch (e) {
-        console.log('Error al crear Trans: ', transaccion.id);
-        console.log('DB Error: ', e);
-    }
 }
 
 async function guardarDescuento(descuento) {
@@ -205,7 +180,8 @@ async function procesarTransacciones(linea, id_cliente, id_pago) {
             id_cliente: id_cliente,
             id_pago: id_pago
         }
-        guardarTransaccion(jsonResult)
+        const tc = new TransaccionController()
+        tc.guardarTransaccion(jsonResult)
     }
     //return "Proceso Lineas 2 OK!";
 };
@@ -255,13 +231,6 @@ async function ProcesarLinea4(linea) {
     return jsonResult; // Retorna fecha de pago y el id del cliente
 };
 
-async function probandoSincronico() {
-    /*var cantTotal = */
-    return totalClientes();
-    //return 'Arhivo procesado exitosamente! Cant clientes en bd actualmente:' + cantTotal;
-};
-
-
 async function Proceso(regText) {
     var r = /(1\w{32}\s{3}\d{3}\d{13}\d{13}\d{13})\n((2\w{32}\d{13}\s{5}\d{1}\n)*)((3\w{32}\d{13}\s{3}\d{1}\n)*)(4\s{15}\d{8}\w{32})\n/g
     var cantidad = 0;
@@ -300,7 +269,6 @@ async function Proceso(regText) {
             
             //const pru = Promise.all([ProcesarLinea1(m[1]), ProcesarLinea4(m[6],cantidad)])
             var jLinea4 = await ProcesarLinea4(m[6]);
-            
             var pago = await extraerDatosPago(m[1],jLinea4,cantidad)            
             const pagoC = new PagoController()
             await pagoC.guardarPago(pago)
@@ -405,10 +373,10 @@ async function Proceso(regText) {
     });*/
 
     
-    console.log('Fin del for');
+    //console.log('Fin del for');
     //resolve('Fin del for');
     //})
-     return 'Fin proceso'
+    //return 'Fin proceso'
 }
 
 class ClientController {
@@ -456,12 +424,12 @@ class ClientController {
         message += await Database.truncate('pagos').then(function(resu){
             if (resu) {
                 console.log('OK borrar todos los pagos')
-                return 'OK borrar todos los pagos'
+                return 'OK borrar todos los pagos\n'
                 //response.ok('OK borrar todos los pagos')
             }
             else {
                 console.log('Ocurrió un error, no se pueden borrar los pagos')
-                return 'Ocurrió un error, no se pueden borrar los pagos'
+                return 'Ocurrió un error, no se pueden borrar los pagos\n'
                 //response.error('Ocurrió un error, no se pueden borrar los pagos')
             }
         }) + '\n'
@@ -469,12 +437,12 @@ class ClientController {
         message += '\n' + await Database.truncate('clients').then(function(resu){
             if (resu) {
                 console.log('OK borrar todos los clientes')
-                return 'OK borrar todos los clientes'
+                return 'OK borrar todos los clientes\n'
                 //response.ok('OK borrar todos los clientes')
             }
             else {
                 console.log('Ocurrió un error, no se pueden borrar los clientes')
-                return 'Ocurrió un error, no se pueden borrar los clientes'
+                return 'Ocurrió un error, no se pueden borrar los clientes\n'
                 //response.error('Ocurrió un error, no se pueden borrar los clientes')
             } 
         }) + '\n'
@@ -488,14 +456,13 @@ class ClientController {
 
         try {
             await auth.check()
-            console.log('Autenticacion OK')
-            res += 'Autenticacion OK\n'
-
-            } catch (error) {
+                console.log('Autenticacion OK')
+                res += 'Autenticacion OK\n'
+        } catch (error) {
             console.log('Missing or invalid api token')
-            response.status(403).send('No tienes autorizacion')
-            return 'Missing or invalid api token'
-            }
+            //response.status(403).send('No tienes autorizacion')
+            return 'Token invalido o ausente'
+        }
 
         try {
 
@@ -516,14 +483,14 @@ class ClientController {
                 console.log('Obteniendo archivo...intento ', cantIntentos);
 
                 return new Promise((resolve, reject) => {
-                    request(options, function(error, response) {
-                        if (error || response.statusCode !== 200) {
+                    request(options, function(error, res) {
+                        if (error || res.statusCode !== 200) {
                             console.log('Error al obtener el archivo');
                             setTimeout( function() { resolve(result()) }, 5000 );
                         }
                         else {
                             //console.log('Conexion exitosa');
-                            return resolve(response.body);
+                            return resolve(res.body);
                         }
                     });
                 })
@@ -532,14 +499,19 @@ class ClientController {
             
             var s = await result();
             await Proceso(s)
-            await probandoSincronico()
+            
 
-            const pagos = await Pago.all()//.then((result) => result.data);
-            //const postsJSON = pagos.map((pago) => pago.serialize())
 
             
+            const pagos = await Pago.all()
+            var jsonString = JSON.stringify(pagos.toJSON());
+            res += 'Imprime JSON: \n' + jsonString
             console.log('Imprime JSON: ');
-            console.log(pagos.toJSON ());
+            console.log(pagos.toJSON());
+
+            var cantClientes = await totalClientes()
+
+            res += '\nCantidad de clientes: ' + cantClientes
             //console.log(postsJSON);
 
             /*
@@ -570,7 +542,7 @@ class ClientController {
             */
         }
         catch (error) {
-            response.ok('Hubo errores: ', error)
+            //response.error('Hubo errores: ', error)
             console.log('Error: ', error)
             return 'Error: ', error
         }
