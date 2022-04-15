@@ -9,7 +9,7 @@ class TransaccionSchema extends Schema {
       table.string('id', 32).notNullable().primary()
       table.integer('monto_total').notNullable().defaultTo(0)
       table.integer('tipo').notNullable().defaultTo(2) // 1: Aprobado | 2: Rechazado | (por defecto 2 Rechazado)
-      //table.string('id_cliente').references('id').inTable('clientes')
+      table.string('id_cliente', 32).references('id').inTable('clientes')
       table.string('id_pago', 32).references('id').inTable('pagos')
       table.timestamps()
     })
