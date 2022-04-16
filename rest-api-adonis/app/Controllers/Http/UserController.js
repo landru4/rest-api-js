@@ -1,5 +1,7 @@
 'use strict'
 
+//const { Exception } = require("sass");
+
 const User = use('App/Models/User');
 
 class UserController {
@@ -21,9 +23,27 @@ class UserController {
         });
         return this.login(...arguments);
         //return user;
-
-        //res.status(200).json(user);
     };
+
+    async logout({ request, response, auth }) { 
+
+        try {
+            await auth.check()
+            const user = await auth.getUser()
+            await user
+            .tokens()
+            .orderBy('created_at', 'desc')
+            .limit(1)
+            //.where('token', [apiToken])
+            .update({ is_revoked: true })
+            console.log('Usuario hizo logout')
+        } catch (error) {
+            console.log('Token invalido o ausente')
+            console.log(error)
+            return 'Token invalido o ausente'
+        }
+      return response.send('Chau!')
+  }
 }
 
 module.exports = UserController

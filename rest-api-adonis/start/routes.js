@@ -19,9 +19,11 @@ const Route = use('Route')
 Route.group(() => {
   Route.post('usuarios/signup', 'UserController.signup');
   Route.post('usuarios/login', 'UserController.login');
+  Route.post('usuarios/logout', 'UserController.logout');
 
-  Route.get('file', 'ClientController.file');
-  Route.get('index', 'ClientController.index');
+  Route.get('iniProceso', 'ClientController.iniProceso');
+  Route.get('finProceso', 'ClientController.finProceso');
+  Route.get('clientes', 'ClientController.clientes');
   Route.get('borrarTodo', 'ClientController.borrarTodo');
   
 
@@ -30,8 +32,6 @@ Route.group(() => {
 Route.get('/', () => {
   return { greeting: 'Esta ruta devuelve un saludo :) Andres' }
 })
-
-
 
 /*() => {
   return { mensaje: 'Hola, registro de usuario nuevo' }

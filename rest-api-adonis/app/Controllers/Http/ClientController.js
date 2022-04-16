@@ -3,25 +3,26 @@
 
 
 //const Transaccion = require('../../Models/Transaccion');
-
 //const { Exception } = require('sass');
 //const { resolveSerializer } = require('../../Models/Client');
 //const { resolveSerializer } = require('../../Models/Pago');
 //const { resolveSerializer } = require('../../Models/Pago');
-
 //const { jwt } = require('../../../config/auth');
 
 const Client = use('App/Models/Client');
 const Pago = use('App/Models/Pago');
-const Transaccion = use('App/Models/Transaccion');
-const Descuento = use('App/Models/Descuento');
+//const Transaccion = use('App/Models/Transaccion');
+//const Descuento = use('App/Models/Descuento');
 const Database = use('Database')
 
-const PagoController = use('App/Controllers/Http/PagoController');
-const TransaccionController = use('App/Controllers/Http/TransaccionController');
-const DescuentoController = require('./DescuentoController');
+//const PagoController = use('App/Controllers/Http/PagoController');
+//const TransaccionController = use('App/Controllers/Http/TransaccionController');
+const PagoController = use('./PagoController');
+const TransaccionController = use('./TransaccionController');
+const DescuentoController = use('./DescuentoController');
 
 const esperaReintentarObtenerCliente = 500
+global.salir = false
 
 async function totalClientes() {
     const count = await Database
@@ -32,12 +33,28 @@ async function totalClientes() {
     return total;
 }
 
+async function totalPagos() {
+    const count = await Database
+                            .from('pagos')
+                            .count('* as total')
+    const total = count[0].total
+    console.log('Cantidad de pagos: ', total);
+    return total;
+}
+
+async function totalTransacciones() {
+    const count = await Database
+                            .from('transaccions')
+                            .count('* as total')
+    const total = count[0].total
+    console.log('Cantidad de transacciones: ', total, '\n');
+    return total;
+}
+
 async function guardarClienteDummy(id_cliente) {
     try { 
         await Client.findOrCreate( 
-            {
-                id: id_cliente
-            }, 
+            { id: id_cliente }, 
             {
                 id: id_cliente,
                 email: id_cliente,
@@ -50,14 +67,35 @@ async function guardarClienteDummy(id_cliente) {
                 phone: 'testphone'
             }
         );
-        console.log('Cliente creado/encontrado con exito: ', id_cliente);
+        //console.log('Cliente creado/encontrado con exito: ', id_cliente);
     } catch (e) {
         console.log('Error al crear cliente: ', id_cliente);
-        console.log('DB Error: ', e);
+        console.log(e);
     }
 }
 
-async function ObtenerDatosClienteAPI (id_cliente) {
+async function extraerDatosLinea4(linea) {
+    //console.log("Proceso la linea 4");
+    var regex = /(4)\s{15}(\d{8})(\w{32})/g;
+    const matches = linea.matchAll(regex);
+    //console.log(linea);
+    var jsonResult
+    for (const m of matches) {
+        /*console.log('Tipo reg:', m[1]);
+        console.log('Fecha pago:', m[2]);
+        console.log('Id Cliente:', m[3]);*/
+        // index of where the match starts
+        jsonResult = 
+        {
+            fecha_pago: m[2],
+            id_cliente: m[3]
+        }
+        await guardarClienteDummy(m[3]);
+    }
+    return jsonResult; // Retorna fecha de pago y el id del cliente
+};
+
+async function obtenerDatosClienteAPI(id_cliente) {
     // Crear la llamada a la API para obtener los datos del cliente.
     var request = require('request');
 
@@ -79,107 +117,58 @@ async function ObtenerDatosClienteAPI (id_cliente) {
                 if (error || response.statusCode !== 200 || response.body===null) {
                     console.log('API: Error al obtener el cliente: ', id_cliente, 'Intento: ', cantVecesIntentoObtenerCliente);
                     if (error)
-                        console.log('Error: ', error);
+                        console.log(error);
                     setTimeout( function() { resolve(result()) }, esperaReintentarObtenerCliente );
                 }
                 else {
-                    //console.log('API: Datos cliente con exito: ', id_cliente);
+                    if (cantVecesIntentoObtenerCliente > 1)
+                    console.log('API: Datos cliente con exito: ', id_cliente);
                     return resolve(response.body);
                 }
             });
         })
     });
 
-    var fromapi = await result();
+    return await result();
+}
+
+async function obtenerClienteAPI(id_cliente) {
+    var fromapi = await obtenerDatosClienteAPI(id_cliente)
     try { 
-        var jsonA = {...JSON.parse(fromapi) ,...{ updated_at : Date.now() }}
+        var jsonCliente = {...JSON.parse(fromapi) ,...{ updated_at : Date.now() }}
         const affectedRows = await Database
         .table('clients')
         .where('id', id_cliente)
-        .update(jsonA)
-        //if (affectedRows > 0)
-            //console.log('Cliente actualizado con exito: ', id_cliente);
-        if (!affectedRows)
+        .update(jsonCliente)
+        if (affectedRows==0)
              console.log('Cliente sin cambios: ', id_cliente);
     } catch (e) {
         console.log('API: Error al obtener datos de cliente: ', id_cliente);
-        console.log('API: Error: ', e);
+        console.log(e);
     }
 };
 
-async function extraerDatosPago(linea1, jLinea4) {
-    //console.log("Proceso la linea 1");
-    var regex = /(1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13})/g;
-    const matches = linea1.matchAll(regex);
-    //console.log(linea);
-    var jsonLinea1
-    for (const m of matches) {
-        /*console.log("Cabecera:");
-        console.log("Tipo:", m[1]);
-        console.log("Id Pago:", m[2]);
-        console.log("Moneda:", m[3]);
-        console.log("Monto total:", m[4]);
-        console.log("Total descuento:", m[5]);
-        console.log("Total c/descuento:", m[6]);*/
-        jsonLinea1 = 
-        {
-            id: m[2], // Es el id de pago
-            moneda: m[3],
-            monto_total: m[4],
-            total_descuento: m[5],
-            total_con_descuento: m[6]
-        }
-    }
-    
-    //console.log('Datos pago linea 4: ', jLinea4)
-    return  { ...jsonLinea1, ...jLinea4 };
-};
-
-async function ProcesarLinea4(linea) {
-    //console.log("Proceso la linea 4");
-    var regex = /(4)\s{15}(\d{8})(\w{32})/g;
-    const matches = linea.matchAll(regex);
-    //console.log(linea);
-    var jsonResult
-    for (const m of matches) {
-        /*console.log('Tipo reg:', m[1]);
-        console.log('Fecha pago:', m[2]);
-        console.log('Id Cliente:', m[3]);*/
-        // index of where the match starts
-        jsonResult = 
-        {
-            fecha_pago: m[2],
-            id_cliente: m[3]
-        }
-        await guardarClienteDummy(m[3]);
-    }
-    return jsonResult; // Retorna fecha de pago y el id del cliente
-};
-
-async function Proceso(regText) {
+async function procesoDataArchivo(regText) {
+    console.log('Procesando datos del archivo (clientes, pagos, transacciones, descuentos)')
+    const pagoC = new PagoController()
+    const transC = new TransaccionController()
+    const descC = new DescuentoController()
     var r = /(1\w{32}\s{3}\d{3}\d{13}\d{13}\d{13})\n((2\w{32}\d{13}\s{5}\d{1}\n)*)((3\w{32}\d{13}\s{3}\d{1}\n)*)(4\s{15}\d{8}\w{32})\n/g
     var cantidad = 0;
-    //resolve( ()=> {
     const matches = regText.matchAll(r);
     for (const m of matches) {
-    //while (cantidad < 5 /* cantidad <= cantidadMatches*/) {
         cantidad++;
-        //const m = matches[cantidad]
-        
         if (cantidad > 5) {
-            console.log('HAY MAS DE 5 CLIENTES:', cantidad);
+            console.log('HAY MAS DE 5 CLIENTES:', cantidad); // TODO: borrar esto al final
             break
-            //return resolve('HAY MAS DE 5 CLIENTES:' + cantidad);
         }
+        var jLinea4 = await extraerDatosLinea4(m[6]);
+        var pago = { ...await pagoC.extraerDatosPago(m[1]), ...jLinea4 }
 
-        var jLinea4 = await ProcesarLinea4(m[6]);
-        var pago = await extraerDatosPago(m[1],jLinea4,cantidad)            
-        const pagoC = new PagoController()
-        const transC = new TransaccionController()
-        const descC = new DescuentoController()
         await pagoC.guardarPago(pago)
-        await Promise.all([transC.procesarTransacciones(m[2], pago.id_cliente, pago.id), descC.procesarDescuentos(m[4], pago.id), ObtenerDatosClienteAPI(jLinea4.id_cliente)])
+        await Promise.all([transC.procesarTransacciones(m[2], pago.id_cliente, pago.id), descC.procesarDescuentos(m[4], pago.id)/*, obtenerClienteAPI(jLinea4.id_cliente)*/])
     }
+    console.log('Se ha procesado el archivo exitosamente')
 }
 
 async function intentoObtenerArhivo () {
@@ -216,6 +205,52 @@ async function intentoObtenerArhivo () {
     return await result();
 }
 
+async function procesoGeneral() {
+    var res = '';
+    try {
+        await procesoDataArchivo(await intentoObtenerArhivo())
+        
+        //const pagos = await Pago.all()
+        //var jsonString = JSON.stringify(pagos.toJSON());
+        //res += 'Imprime JSON: \n' + jsonString
+        //console.log('Imprime JSON: ');
+        //console.log(pagos.toJSON());
+
+        res += '\nCantidad de Clientes: ' + await totalClientes()
+        res += '\nCantidad de Pagos: ' + await totalPagos()
+        res += '\nCantidad de Transacciones: ' + await totalTransacciones() + '\n'
+    }
+    catch (error) {
+        console.log(error)
+        return error
+    }
+    return res;
+}
+
+async function loopProcesoArchivos () {
+    var cantIntentos = 0
+    var res = '';
+
+    const result = (async () => {
+        cantIntentos++
+        return new Promise((resolve, reject) => {
+            res += '\nIniciando proceso automatico...intento ' + cantIntentos
+            console.log('Iniciando proceso automatico...intento ', cantIntentos);
+            procesoGeneral()
+            if (salir) {
+                console.log('Se terminará el proceso de actualizacion\n')
+                resolve(res)
+            }
+            else {
+                setTimeout( function() { resolve(result()) }, 8000 );
+            }
+        })
+    });
+    res += await result();
+    console.log('Finalizara la actualizacion de los datos desde la API\n');
+    return res
+}
+
 class ClientController {
     async store() {
         return {
@@ -223,9 +258,8 @@ class ClientController {
         };
     };
 
-    async index({ response }) {
+    async clientes({ response }) {
         const clients = await Client.all()
-
         return response.ok(clients)
     }
 
@@ -278,37 +312,36 @@ class ClientController {
         //return 'Tablas de datos borrados con exito!!!'
     }
 
-    async file({ req, auth, response }) {
+    async iniProceso({ req, auth, response }) {
         var res = '';
-
         try {
             await auth.check()
                 console.log('Autenticacion OK')
                 res += 'Autenticacion OK\n'
         } catch (error) {
-            console.log('Missing or invalid api token')
+            console.log('Token invalido o ausente')
             //response.status(403).send('No tienes autorizacion')
             return 'Token invalido o ausente'
         }
+        res += await loopProcesoArchivos()
+        return res
+    }
 
+    async finProceso({ req, auth, response }) {
+        var res = '';
         try {
-            var s = await intentoObtenerArhivo()
-            await Proceso(s)
-            
-            const pagos = await Pago.all()
-            var jsonString = JSON.stringify(pagos.toJSON());
-            res += 'Imprime JSON: \n' + jsonString
-            console.log('Imprime JSON: ');
-            console.log(pagos.toJSON());
-
-            var cantClientes = await totalClientes()
-            res += '\nCantidad de clientes: ' + cantClientes
+            await auth.check()
+                console.log('Autenticacion OK')
+                res += 'Autenticacion OK\n'
+        } catch (error) {
+            console.log('Token invalido o ausente')
+            //response.status(403).send('No tienes autorizacion')
+            return 'Token invalido o ausente'
         }
-        catch (error) {
-            console.log('Error: ', error)
-            return 'Error: ', error
-        }
-        return res;
+        salir = true
+        //console.log('Contador procesos: ') + salir
+        res += '\nProceso finalizado, Nos vemos pronto!'
+        return res
     }
 }
 
