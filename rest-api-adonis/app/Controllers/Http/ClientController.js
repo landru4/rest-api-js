@@ -159,7 +159,7 @@ async function procesoDataArchivo(regText) {
     for (const m of matches) {
         cantidad++;
         if (cantidad > 5) {
-            console.log('HAY MAS DE 5 CLIENTES:', cantidad); // TODO: borrar esto al final
+            console.log('HAY MAS DE 5 CLIENTES:', cantidad) // TODO: borrar esto al final
             break
         }
         var jLinea4 = await extraerDatosLinea4(m[6]);
@@ -168,6 +168,7 @@ async function procesoDataArchivo(regText) {
         await pagoC.guardarPago(pago)
         await Promise.all([transC.procesarTransacciones(m[2], pago.id_cliente, pago.id), descC.procesarDescuentos(m[4], pago.id)/*, obtenerClienteAPI(jLinea4.id_cliente)*/])
     }
+    console.log('Se guardaron ', cantidad, ' pagos y clientes obtenidos del archivo')
     console.log('Se ha procesado el archivo exitosamente')
 }
 
