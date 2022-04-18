@@ -1,6 +1,29 @@
 'use strict'
 
 const Pago = use('App/Models/Pago');
+const Client = use('App/Models/Client');
+const Database = use('Database')
+
+// Total pago para un cliente
+async function totalPagoAnteriores(id_cliente) {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+    const cliente = await Client.find(id_cliente)
+    const res = await cliente.pagos().where('fecha_pago', '<=', yyyy+mm+dd).fetch()
+    return (res)? res.toJSON():null;
+}
+
+async function totalPagoFuturos(id_cliente) {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+    const cliente = await Client.find(id_cliente)
+    const res = await cliente.pagos().where('fecha_pago', '>', yyyy+mm+dd).fetch()
+    return (res)? res.toJSON():null;
+}
 
 class PagoController {
     async guardarPago(pago) {
@@ -28,15 +51,9 @@ class PagoController {
         }
     }
 
-    // Total pago para un cliente
-    async totalPago(id_cliente) {
-        const monto = await Database
-                                .from('pagos')
-                                .where('id_cliente=' + id_cliente)
-                                .sum('monto_total as total')
-        const total = monto[0].total
-        console.log('Monto total pagos: ', total);
-        return total;
+    async pagos({ request, response }) {
+        const id_cliente = request.params['id']
+        return { anteriores: [...await totalPagoAnteriores(id_cliente)], futuros: [...await totalPagoFuturos(id_cliente)] }
     }
 
     async extraerDatosPago(linea1) {
@@ -67,6 +84,28 @@ class PagoController {
         //return  { ...jsonLinea1, ...jLinea4 };
         return  jsonLinea1;
     };
+
+    async borrarTodo() {
+        return await Database.truncate('pagos').then(function(resu){
+            if (resu) {
+                console.log('OK borrar todos los pagos')
+                return 'OK borrar todos los pagos\n'
+            }
+            else {
+                console.log('Ocurrió un error, no se pueden borrar los pagos')
+                return 'Ocurrió un error, no se pueden borrar los pagos\n'
+            }
+        })
+    }
+
+    async totalPagos() {
+        const count = await Database
+                                .from('pagos')
+                                .count('* as total')
+        var msj = 'Cantidad de pagos: ' + count[0].total
+        //console.log(msj);
+        return msj;
+    }
 }
 
 module.exports = PagoController

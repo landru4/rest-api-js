@@ -1,7 +1,6 @@
 'use strict'
 
-//const { Exception } = require("sass");
-
+const { resolveSerializer } = require("../../Models/Client");
 const User = use('App/Models/User');
 
 class UserController {
@@ -28,6 +27,7 @@ class UserController {
     async logout({ request, response, auth }) { 
 
         try {
+            //request.auth.logout()
             await auth.check()
             const user = await auth.getUser()
             await user

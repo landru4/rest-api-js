@@ -6,20 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "Prueba",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "c",
-					"host": [
-						"c"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "registro",
 			"request": {
 				"method": "POST",
@@ -57,7 +43,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjQsImlhdCI6MTY0OTgwNjI1MX0.N4_UOohShD7Cewqj1TqmLI2CXPt7ywBl79MltI5fmFg",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImlhdCI6MTY1MDA4NDAxNn0.wkDNK36BPyFYx4CuWoyQqCaTy5Ijp3qbbJtr0_zkjqE",
 							"type": "string"
 						}
 					]
@@ -90,7 +76,47 @@
 			"response": []
 		},
 		{
-			"name": "fileLocal",
+			"name": "logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "51c2ea8223be95e605907cf7218aa7ccHP0OwXg8417m8BtruOIXsrxlsNvsvRsKzKEIyP4oCX0lKIlsLmYo+JVhceiWCyJX",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/usuarios/logout",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "iniProceso",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -100,7 +126,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "7cba008e3783a9d558d39bfba1294fffjjSfCVL27kEoqG2PiR53pqNoNQYd/bqgbNtRIzPNPROD37wDZRAADXkj5fNlfK2n",
+							"value": "be2c8f2cdfe2364b3d1b53ba28342a9bESvqQJqekL05HEBSEel+JqR7Qcr6l2YC2dEKMkJ75QP5k1EeEsp/ruwSaykxHGpc",
 							"type": "string"
 						}
 					]
@@ -117,7 +143,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:3333/api/v1/file",
+					"raw": "localhost:3333/api/v1/iniProceso",
 					"host": [
 						"localhost"
 					],
@@ -125,14 +151,14 @@
 					"path": [
 						"api",
 						"v1",
-						"file"
+						"iniProceso"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "borrarClientes",
+			"name": "finProceso",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -142,7 +168,49 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"value": "be2c8f2cdfe2364b3d1b53ba28342a9bESvqQJqekL05HEBSEel+JqR7Qcr6l2YC2dEKMkJ75QP5k1EeEsp/ruwSaykxHGpc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/finProceso",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"finProceso"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "borrar Datos (no usuarios)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "9b078a34be45e0ad4b9a15adb71edbe8yU+KukbT2kWJdTg9xqA3s5LIcUoeTrRenQiVYxihAlyeu2W8GK1JbLoE/na8xppj",
 							"type": "string"
 						}
 					]
@@ -174,7 +242,7 @@
 			"response": []
 		},
 		{
-			"name": "listarClientes",
+			"name": "listar Clientes",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -201,7 +269,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:3333/api/v1/index",
+					"raw": "localhost:3333/api/v1/clientes",
 					"host": [
 						"localhost"
 					],
@@ -209,14 +277,164 @@
 					"path": [
 						"api",
 						"v1",
-						"index"
+						"clientes"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "file",
+			"name": "ver dato cliente",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/clientes/cliente/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"clientes",
+						"cliente",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "6b43736c8c5a46a0bff26203a47ee16f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pagos de cliente",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/pagos/cliente/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"pagos",
+						"cliente",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "6b43736c8c5a46a0bff26203a47ee16f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "transacciones de cliente",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "1f765cd6887858627282a3238f5736beZPgymC4arFk233UubivO8pddWfZmlsxJ6wlm9GOlQ6Lxl3k3cCD5KkiP9MduVZB5",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/api/v1/transacciones/cliente/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"v1",
+						"transacciones",
+						"cliente",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "6b43736c8c5a46a0bff26203a47ee16f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get File API",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {},
 				"followOriginalHttpMethod": false
@@ -250,7 +468,7 @@
 			"response": []
 		},
 		{
-			"name": "client",
+			"name": "get Client API",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {},
 				"followOriginalHttpMethod": false
@@ -283,50 +501,7 @@
 					"variable": [
 						{
 							"key": "id",
-							"value": " 6d1228e5787b408bb5be58bbd9c2a2e4"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "clients",
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {},
-				"followOriginalHttpMethod": false,
-				"followRedirects": true,
-				"strictSSL": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "1234567890qwertyuiopasdfghjklzxcvbnm",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "https://increase-transactions.herokuapp.com/clients/?id=1",
-					"protocol": "https",
-					"host": [
-						"increase-transactions",
-						"herokuapp",
-						"com"
-					],
-					"path": [
-						"clients",
-						""
-					],
-					"query": [
-						{
-							"key": "id",
-							"value": "1"
+							"value": " 6f778cfaaadd4449b2ac068cfdc046cd"
 						}
 					]
 				}

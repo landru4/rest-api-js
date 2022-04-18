@@ -17,7 +17,7 @@ class DescuentoController {
             console.log('Error al crear Descuento: ', descuento.id);
             console.log('DB Error: ', e);
         }
-    }
+    };
 
     async procesarDescuentos(linea, id_pago) {
         //console.log("Proceso la linea 3");
@@ -41,6 +41,27 @@ class DescuentoController {
         }
     };
 
+    async borrarTodo() {
+        return await Database.truncate('descuentos').then(function(resu){
+            if (resu) {
+                console.log('OK borrar todos los descuentos')
+                return 'OK borrar todos los descuentos'
+            }
+            else {
+                console.log('Ocurrió un error, no se pueden borrar los descuentos')
+                return 'Ocurrió un error, no se pueden borrar los descuentos'
+            }
+        })
+    }
+
+    async totalDescuentos() {
+        const count = await Database
+                                .from('descuentos')
+                                .count('* as total')
+        var msj = 'Cantidad de descuentos: ' + count[0].total
+        //console.log(msj);
+        return msj;
+    };
 }
 
 module.exports = DescuentoController

@@ -1,6 +1,7 @@
 'use strict'
 const Database = use('Database')
 const Transaccion = use('App/Models/Transaccion');
+const Client = use('App/Models/Client');
 
 class TransaccionController {
 
@@ -16,6 +17,16 @@ class TransaccionController {
             console.log('Error al crear transaccion: ', transaccion.id);
             console.log('DB Error: ', e);
         }
+    }
+
+    async transacciones({ request, response }) {
+        var res = null
+        if (request.params['id']) {
+            const id_cliente = await request.params['id']
+            const cliente = await Client.find(id_cliente)
+            res = await cliente.transacciones().fetch()
+        }
+        return (res)? res.toJSON():null;
     }
 
     async procesarTransacciones(linea, id_cliente, id_pago) {
@@ -45,17 +56,25 @@ class TransaccionController {
     async borrarTodo() {
         return await Database.truncate('transaccions').then(function(resu){
             if (resu) {
-                console.log('OK borrar todas las trans')
-                return 'OK borrar todas las trans'
+                console.log('OK borrar todas las transacciones')
+                return 'OK borrar todas las transacciones'
             }
             else {
-                console.log('Ocurrió un error, no se pueden borrar las trans')
-                return 'Ocurrió un error, no se pueden borrar las trans'
-                //response.error('Ocurrió un error, no se pueden borrar las trans')
+                console.log('Ocurrió un error, no se pueden borrar las transacciones')
+                return 'Ocurrió un error, no se pueden borrar las transacciones'
             }
         })
     }
 
+    async totalTransacciones() {
+        const count = await Database
+                                .from('transaccions')
+                                .count('* as total')
+        var msj = 'Cantidad de transacciones: ' + count[0].total
+        //console.log(msj);
+        return msj;
+    }
+    
     /*
     async guardarTransaccion(id_transaccion, monto_total, tipo, id_cliente, id_pago) {
         try { 

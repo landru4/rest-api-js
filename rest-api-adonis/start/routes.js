@@ -17,20 +17,30 @@
 const Route = use('Route')
 
 Route.group(() => {
+  // Login
   Route.post('usuarios/signup', 'UserController.signup');
   Route.post('usuarios/login', 'UserController.login');
   Route.post('usuarios/logout', 'UserController.logout');
 
-  Route.get('iniProceso', 'ClientController.iniProceso');
-  Route.get('finProceso', 'ClientController.finProceso');
+  // Iniciar y finalizar el proceso de obtener los datos de la API
+  Route.get('iniProceso', 'ManagerController.iniProceso');
+  Route.get('finProceso', 'ManagerController.finProceso');
+  Route.get('borrarTodo', 'ManagerController.borrarTodo');
+
+  // Obtiene los datos de los clientes
   Route.get('clientes', 'ClientController.clientes');
-  Route.get('borrarTodo', 'ClientController.borrarTodo');
-  
+  Route.get('clientes/cliente/:id', 'ClientController.cliente');
+
+  // Obtiene los datos de pagos realizados y que se realizarán
+  Route.get('pagos/cliente/:id', 'PagoController.pagos');
+
+    // Obtiene los datos de transacciones de un cliente
+    Route.get('transacciones/cliente/:id', 'TransaccionController.transacciones');
 
 }).prefix('api/v1/');
 
 Route.get('/', () => {
-  return { greeting: 'Esta ruta devuelve un saludo :) Andres' }
+  return { greeting: 'Bienvenido/a :)' }
 })
 
 /*() => {
