@@ -1,4 +1,5 @@
 # rest-api-js
+# API REST desarrollada en node.js con adonis y sqlite3.
 
 Ejercicio: API REST que expone la siguiente información que es solicitada: 
   1. Información de los clientes. 
