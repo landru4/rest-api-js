@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"raw": "{\r\n    \"email\": \"test1landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,14 +39,7 @@
 			"name": "login",
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImlhdCI6MTY1MDA4NDAxNn0.wkDNK36BPyFYx4CuWoyQqCaTy5Ijp3qbbJtr0_zkjqE",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
@@ -83,7 +76,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "51c2ea8223be95e605907cf7218aa7ccHP0OwXg8417m8BtruOIXsrxlsNvsvRsKzKEIyP4oCX0lKIlsLmYo+JVhceiWCyJX",
+							"value": "da4ee5dec99f36a5882235116e3fe655a7RhIBy5bkh92m6wLJWmdus+0eA8sxZlvxucdAYPtVUdOfRokd71xZxL6dFlCfvR",
 							"type": "string"
 						}
 					]
@@ -135,7 +128,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test6landru@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"

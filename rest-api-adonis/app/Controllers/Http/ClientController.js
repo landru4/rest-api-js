@@ -1,23 +1,8 @@
 'use strict'
 
 
-
-//const Transaccion = require('../../Models/Transaccion');
-//const { Exception } = require('sass');
-//const { resolveSerializer } = require('../../Models/Client');
-//const { resolveSerializer } = require('../../Models/Pago');
-//const { resolveSerializer } = require('../../Models/Pago');
-//const { jwt } = require('../../../config/auth');
-
 const Client = use('App/Models/Client');
-const Pago = use('App/Models/Pago');
-//const Transaccion = use('App/Models/Transaccion');
-//const Descuento = use('App/Models/Descuento');
 const Database = use('Database')
-
-const PagoController = use('./PagoController');
-const TransaccionController = use('./TransaccionController');
-const DescuentoController = use('./DescuentoController');
 
 const esperaReintentarObtenerCliente = 30000
 

@@ -5,24 +5,33 @@ const Client = use('App/Models/Client');
 const Database = use('Database')
 
 // Total pago para un cliente
-async function totalPagoAnteriores(id_cliente) {
+async function pagoAnteriores(id_cliente) {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yyyy = today.getFullYear();
     const cliente = await Client.find(id_cliente)
-    const res = await cliente.pagos().where('fecha_pago', '<=', yyyy+mm+dd).fetch()
-    return (res)? res.toJSON():null;
+    //const res = await cliente.pagos().where('fecha_pago', '<=', yyyy+mm+dd).fetch()
+    const arsPagos = await cliente.pagos().where('moneda', 0).where('fecha_pago', '<=', yyyy+mm+dd).fetch();
+    const usdPagos = await cliente.pagos().where('moneda', 1).where('fecha_pago', '<=', yyyy+mm+dd).fetch();
+
+    const total_con_descuento_ar = await cliente.pagos().where('moneda', 0).where('fecha_pago', '<=', yyyy+mm+dd).sum('total_con_descuento as total_con_descuento_ar');
+    const total_con_descuento_usd = await cliente.pagos().where('moneda', 1).where('fecha_pago', '<=', yyyy+mm+dd).sum('total_con_descuento as total_con_descuento_usd');
+    return { ars: arsPagos.toJSON(), total_ars: total_con_descuento_ar, usd: usdPagos.toJSON(),  total_usd: total_con_descuento_usd };
 }
 
-async function totalPagoFuturos(id_cliente) {
+async function pagoFuturos(id_cliente) {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yyyy = today.getFullYear();
     const cliente = await Client.find(id_cliente)
-    const res = await cliente.pagos().where('fecha_pago', '>', yyyy+mm+dd).fetch()
-    return (res)? res.toJSON():null;
+    const arsPagos = await cliente.pagos().where('moneda', 0).where('fecha_pago', '>', yyyy+mm+dd).fetch();
+    const usdPagos = await cliente.pagos().where('moneda', 1).where('fecha_pago', '>', yyyy+mm+dd).fetch();
+    
+    const total_con_descuento_ar = await cliente.pagos().where('moneda', 0).where('fecha_pago', '>', yyyy+mm+dd).sum('total_con_descuento as total_con_descuento_ar');
+    const total_con_descuento_usd = await cliente.pagos().where('moneda', 1).where('fecha_pago', '>', yyyy+mm+dd).sum('total_con_descuento as total_con_descuento_usd');
+    return { ars: arsPagos.toJSON(), total_ars: total_con_descuento_ar, usd: usdPagos.toJSON(), total_usd: total_con_descuento_usd };
 }
 
 class PagoController {
@@ -53,7 +62,7 @@ class PagoController {
 
     async pagos({ request, response }) {
         const id_cliente = request.params['id']
-        return { anteriores: [...await totalPagoAnteriores(id_cliente)], futuros: [...await totalPagoFuturos(id_cliente)] }
+        return { anteriores: await pagoAnteriores(id_cliente), futuros: await pagoFuturos(id_cliente) }
     }
 
     async extraerDatosPago(linea1) {
