@@ -14,6 +14,7 @@ Instalación, requisitos e instrucciones:
 4. Abrir una consola en la carpeta del proyecto y ejecutar el comando para instalar los paquetes necesarios: 'npm i'
 5. Luego de tener instalado adonis y sqlite3, para crear la base de datos con las tablas correspondientes, ejecutar lo siguiente: 'adonis migration:run'
   Sobre migration: https://legacy.adonisjs.com/docs/4.0/migrations
+  Para volver los datos al inicio y volver a crear la base de datos desde 0: adonis migration:refresh
 5. Para levantar la solucion ejecutar: 'adonis serve --dev'.
   Debería verse algo así:
   > Watching files for changes...
