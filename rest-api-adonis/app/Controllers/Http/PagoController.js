@@ -11,7 +11,6 @@ async function pagoAnteriores(id_cliente) {
     var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yyyy = today.getFullYear();
     const cliente = await Client.find(id_cliente)
-    //const res = await cliente.pagos().where('fecha_pago', '<=', yyyy+mm+dd).fetch()
     const arsPagos = await cliente.pagos().where('moneda', 0).where('fecha_pago', '<=', yyyy+mm+dd).fetch();
     const usdPagos = await cliente.pagos().where('moneda', 1).where('fecha_pago', '<=', yyyy+mm+dd).fetch();
 

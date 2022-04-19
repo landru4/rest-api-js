@@ -1,6 +1,5 @@
 'use strict'
 
-const { resolveSerializer } = require("../../Models/Client");
 const User = use('App/Models/User');
 
 class UserController {

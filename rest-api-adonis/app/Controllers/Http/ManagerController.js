@@ -6,8 +6,6 @@ const PagoController = use('./PagoController');
 const TransaccionController = use('./TransaccionController');
 const DescuentoController = use('./DescuentoController');
 
-const Database = use('Database')
-
 global.salir = false
 
 const esperaObtenerProximoArchivo = 600000
@@ -17,21 +15,6 @@ const clienteC = new ClientController()
 const pagoC = new PagoController()
 const transC = new TransaccionController()
 const descC = new DescuentoController()
-
-// Guardar el archivo
-/*
-var fs = require('fs');
-    fs.writeFile('file.txt', fromapi, function (err) {
-    if (err) return console.log(err);
-    console.log('Archivo leido > file.txt');
-});*/
-
-/*
-const sleep = (seconds) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, (seconds * 1000));
-    });
-};*/
 
 async function intentoObtenerArhivo () {
     var request = require('request');
@@ -48,7 +31,7 @@ async function intentoObtenerArhivo () {
     var cantIntentos = 0
     const result = (async () => {
         cantIntentos++
-        console.log('Obteniendo archivo...intento ', cantIntentos, ' Hora: ' , new Date(Date.now()).toLocaleString()/*.split(',')[0]*/);
+        console.log('Obteniendo archivo...intento ', cantIntentos, ' Hora: ' , new Date(Date.now()).toLocaleString());
 
         return new Promise((resolve, reject) => {
             request(options, function(error, res) {
@@ -74,10 +57,10 @@ async function procesoDataArchivo(regText) {
     const matches = regText.matchAll(r);
     for (const m of matches) {
         cantidad++;
-        if (cantidad > 5) {
-            console.log('HAY MAS DE 5 CLIENTES:', cantidad) // TODO: borrar esto al final
+        /*if (cantidad > 5) {
+            console.log('HAY MAS DE 5 CLIENTES:', cantidad) // TODO: utilizado para pruebas, comentar estas lineas
             break
-        }
+        }*/
         var jLinea4 = await clienteC.extraerDatosLinea4(m[6]);
         var pago = { ...await pagoC.extraerDatosPago(m[1]), ...jLinea4 }
 
@@ -172,6 +155,3 @@ class ManagerController {
 }
 
 module.exports = ManagerController
-
-
-//var r = /((1)(\w{32})\s{3}(\d{3})(\d{13})(\d{13})(\d{13}))\n(((2)(\w{32})(\d{13})\s{5}(\d{1})\n)*)(((3)(\w{32})(\d{13})\s{3}(\d{1}))\n)*(((4)\s{15}(\d{8})(\w{32}))\n)/g,
