@@ -45,7 +45,6 @@ async function obtenerDatosClienteAPI(id_cliente) {
     var cantVecesIntentoObtenerCliente = 0
     const result = (async () => {
         cantVecesIntentoObtenerCliente++;
-        //console.log('Prometo obtener el cliente: ', id_cliente, '(indice: ', index , ')');
         return new Promise((resolve, reject) => {
             request(options, function(error, response) {
                 if (error || response.statusCode !== 200 || response.body===null) {
